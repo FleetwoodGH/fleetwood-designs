@@ -10,6 +10,15 @@ type TrayType = "open" | "lid" | "dividers" | null;
 type DividerLayout = "equal" | "custom" | null;
 type DimensionStrategy = "outside-led" | "usable-space-led" | null;
 
+type DimensionTarget =
+  | "box-outside"
+  | "box-inside"
+  | "system-outside"
+  | "tray-inside"
+  | "compartment-inside"
+  | "custom-tray-inside"
+  | null;
+
 const MIN_GRID_SIZE = 1;
 const MAX_GRID_SIZE = 6;
 
@@ -75,20 +84,72 @@ const dimensionStrategyOptions = [
     id: "outside-led",
     title: "Overall Outside Size",
     description:
-      "Start with the maximum outside size of the complete storage solution. Tray and compartment dimensions will be calculated automatically.",
+      "Start with the maximum outside size of the complete storage solution. Internal dimensions will be calculated automatically.",
     icon: "⬜",
   },
   {
     id: "usable-space-led",
     title: "Required Usable Space",
     description:
-      "Start with the space required for the stored items. The overall outside dimensions will be calculated automatically.",
+      "Start with the usable space required for the stored items. The overall outside dimensions will be calculated automatically.",
     icon: "◻️",
   },
 ];
 
 function isWholeNumber(value: string) {
   return value === "" || /^\d+$/.test(value);
+}
+
+function getBuildTypeLabel(buildType: BuildType) {
+  if (buildType === "box") {
+    return "Storage Box";
+  }
+
+  if (buildType === "system") {
+    return "Storage System";
+  }
+
+  return "";
+}
+
+function getTrayTypeLabel(trayType: TrayType) {
+  if (trayType === "open") {
+    return "Open Trays";
+  }
+
+  if (trayType === "lid") {
+    return "Trays with Lids";
+  }
+
+  if (trayType === "dividers") {
+    return "Trays with Dividers";
+  }
+
+  return "";
+}
+
+function getDividerLayoutLabel(dividerLayout: DividerLayout) {
+  if (dividerLayout === "equal") {
+    return "Equal Grid";
+  }
+
+  if (dividerLayout === "custom") {
+    return "Custom Layout";
+  }
+
+  return "";
+}
+
+function getDimensionStrategyLabel(dimensionStrategy: DimensionStrategy) {
+  if (dimensionStrategy === "outside-led") {
+    return "Overall Outside Size";
+  }
+
+  if (dimensionStrategy === "usable-space-led") {
+    return "Required Usable Space";
+  }
+
+  return "";
 }
 
 export default function StorageDesignAssistant() {
@@ -249,116 +310,199 @@ export default function StorageDesignAssistant() {
     setRequestedHeight(value);
   }
 
-  function getUsableSpaceDescription() {
+  function getDimensionTarget(): DimensionTarget {
+    if (!dimensionStrategy) {
+      return null;
+    }
+
+    if (dimensionStrategy === "outside-led") {
+      return buildType === "box" ? "box-outside" : "system-outside";
+    }
+
     if (buildType === "box") {
-      return "You will specify the required usable inside dimensions of the box. The outside dimensions will be calculated automatically.";
-    }
-
-    if (trayType === "open") {
-      return "You will specify the required usable dimensions inside an open tray. The tray and overall box dimensions will be calculated automatically.";
-    }
-
-    if (trayType === "lid") {
-      return "You will specify the required usable dimensions inside a tray with a lid. The tray and overall box dimensions will be calculated automatically.";
+      return "box-inside";
     }
 
     if (equalGridSelected) {
-      return `You will specify the required dimensions of one compartment. The complete ${rows} × ${columns} grid, tray and overall box dimensions will be calculated automatically.`;
+      return "compartment-inside";
     }
 
     if (customGridSelected) {
-      return "You will specify the required usable tray area. Custom compartment positions will be configured separately.";
+      return "custom-tray-inside";
     }
 
-    return "";
+    return "tray-inside";
+  }
+
+  const dimensionTarget = getDimensionTarget();
+
+  function getDimensionStrategyDescription() {
+    switch (dimensionTarget) {
+      case "box-outside":
+        return "You will specify the total outside dimensions of the storage box. Its usable inside dimensions will be calculated automatically.";
+
+      case "system-outside":
+        return "You will specify the total outside dimensions of the complete storage system. Tray, usable-space and compartment dimensions will be calculated automatically.";
+
+      case "box-inside":
+        return "You will specify the usable inside dimensions required in the storage box. The outside dimensions will be calculated automatically.";
+
+      case "tray-inside":
+        return "You will specify the usable dimensions required inside one tray. The tray and complete storage-system dimensions will be calculated automatically.";
+
+      case "compartment-inside":
+        return `You will specify the usable dimensions required for one compartment. The complete ${rows} × ${columns} grid, tray and storage-system dimensions will be calculated automatically.`;
+
+      case "custom-tray-inside":
+        return "You will specify the usable dimensions required inside the tray. Custom divider positions will be configured separately.";
+
+      default:
+        return "";
+    }
   }
 
   function getDimensionTitle() {
-    if (dimensionStrategy === "outside-led") {
-      return "Specify the overall dimensions";
-    }
+    switch (dimensionTarget) {
+      case "box-outside":
+        return "Specify the outside box dimensions";
 
-    if (equalGridSelected) {
-      return "Specify the compartment dimensions";
-    }
+      case "system-outside":
+        return "Specify the overall system dimensions";
 
-    if (buildType === "box") {
-      return "Specify the usable box dimensions";
-    }
+      case "box-inside":
+        return "Specify the usable box dimensions";
 
-    return "Specify the usable tray dimensions";
+      case "tray-inside":
+        return "Specify the usable tray dimensions";
+
+      case "compartment-inside":
+        return "Specify the compartment dimensions";
+
+      case "custom-tray-inside":
+        return "Specify the usable tray dimensions";
+
+      default:
+        return "Specify the dimensions";
+    }
   }
 
   function getDimensionDescription() {
-    if (dimensionStrategy === "outside-led") {
-      return "Enter the maximum outside dimensions of the complete storage solution.";
-    }
+    switch (dimensionTarget) {
+      case "box-outside":
+        return "Enter the maximum outside width, depth and height of the storage box.";
 
-    if (equalGridSelected) {
-      return `Enter the required usable dimensions of one compartment. The complete ${rows} × ${columns} grid and overall storage solution will be calculated automatically.`;
-    }
+      case "system-outside":
+        return "Enter the maximum outside width, depth and height of the complete storage system.";
 
-    if (buildType === "box") {
-      return "Enter the usable dimensions required inside the storage box.";
-    }
+      case "box-inside":
+        return "Enter the usable width, depth and height required inside the storage box.";
 
-    if (trayType === "lid") {
-      return "Enter the usable dimensions required inside one tray with a lid.";
-    }
+      case "tray-inside":
+        return "Enter the usable width, depth and height required inside one tray.";
 
-    if (trayType === "dividers") {
-      return "Enter the usable dimensions required inside the divided tray.";
-    }
+      case "compartment-inside":
+        return `Enter the usable width, depth and height required for one compartment in the ${rows} × ${columns} grid.`;
 
-    return "Enter the usable dimensions required inside one open tray.";
+      case "custom-tray-inside":
+        return "Enter the usable width, depth and height required inside the divided tray.";
+
+      default:
+        return "";
+    }
   }
 
   function getWidthLabel() {
-    if (dimensionStrategy === "outside-led") {
-      return "Outside width";
-    }
+    switch (dimensionTarget) {
+      case "box-outside":
+        return "Outside box width";
 
-    if (equalGridSelected) {
-      return "Compartment width";
-    }
+      case "system-outside":
+        return "Overall system width";
 
-    if (buildType === "box") {
-      return "Inside width";
-    }
+      case "box-inside":
+        return "Usable box width";
 
-    return "Tray width";
+      case "tray-inside":
+      case "custom-tray-inside":
+        return "Usable tray width";
+
+      case "compartment-inside":
+        return "Compartment width";
+
+      default:
+        return "Width";
+    }
   }
 
   function getDepthLabel() {
-    if (dimensionStrategy === "outside-led") {
-      return "Outside depth";
-    }
+    switch (dimensionTarget) {
+      case "box-outside":
+        return "Outside box depth";
 
-    if (equalGridSelected) {
-      return "Compartment depth";
-    }
+      case "system-outside":
+        return "Overall system depth";
 
-    if (buildType === "box") {
-      return "Inside depth";
-    }
+      case "box-inside":
+        return "Usable box depth";
 
-    return "Tray depth";
+      case "tray-inside":
+      case "custom-tray-inside":
+        return "Usable tray depth";
+
+      case "compartment-inside":
+        return "Compartment depth";
+
+      default:
+        return "Depth";
+    }
   }
 
   function getHeightLabel() {
-    if (dimensionStrategy === "outside-led") {
-      return "Outside height";
-    }
+    switch (dimensionTarget) {
+      case "box-outside":
+        return "Outside box height";
 
-    if (equalGridSelected) {
-      return "Compartment height";
-    }
+      case "system-outside":
+        return "Overall system height";
 
-    if (buildType === "box") {
-      return "Inside height";
-    }
+      case "box-inside":
+        return "Usable box height";
 
-    return "Tray height";
+      case "tray-inside":
+      case "custom-tray-inside":
+        return "Usable tray height";
+
+      case "compartment-inside":
+        return "Compartment height";
+
+      default:
+        return "Height";
+    }
+  }
+
+  function getSpecifiedDimensionLabel() {
+    switch (dimensionTarget) {
+      case "box-outside":
+        return "Outside box dimensions";
+
+      case "system-outside":
+        return "Overall system dimensions";
+
+      case "box-inside":
+        return "Usable box dimensions";
+
+      case "tray-inside":
+        return "Usable dimensions of one tray";
+
+      case "compartment-inside":
+        return "Usable dimensions of one compartment";
+
+      case "custom-tray-inside":
+        return "Usable tray dimensions";
+
+      default:
+        return "Specified dimensions";
+    }
   }
 
   return (
@@ -382,12 +526,12 @@ export default function StorageDesignAssistant() {
       {buildType === "box" && (
         <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-6">
           <h2 className="text-lg font-semibold text-neutral-900">
-            Configuration selected
+            Storage box selected
           </h2>
 
           <p className="mt-2 text-neutral-600">
-            You have selected a storage box. Continue below to configure its
-            dimensions.
+            Continue below to determine whether the outside size or the required
+            usable space should lead the design.
           </p>
         </section>
       )}
@@ -404,11 +548,12 @@ export default function StorageDesignAssistant() {
       {trayType && trayType !== "dividers" && (
         <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-6">
           <h2 className="text-lg font-semibold text-neutral-900">
-            Tray configuration selected
+            Tray type selected
           </h2>
 
           <p className="mt-2 text-neutral-600">
-            Continue below to configure the dimensions of your storage system.
+            Continue below to determine whether the overall outside size or the
+            required usable tray space should lead the design.
           </p>
         </section>
       )}
@@ -433,8 +578,8 @@ export default function StorageDesignAssistant() {
           </h2>
 
           <p className="mt-2 text-neutral-600">
-            Manual guidance for configuring custom divider positions will be
-            added here.
+            The tray dimensions can be configured below. Manual guidance for
+            custom divider positions will be added separately.
           </p>
         </section>
       )}
@@ -442,11 +587,11 @@ export default function StorageDesignAssistant() {
       {gridConfirmed && equalGridSelected && (
         <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-6">
           <h2 className="text-lg font-semibold text-neutral-900">
-            Design configuration complete
+            Equal grid configured
           </h2>
 
           <p className="mt-2 text-neutral-600">
-            Your tray will contain {rows} rows and {columns} columns, creating{" "}
+            The tray will contain {rows} rows and {columns} columns, creating{" "}
             {rows * columns} equally sized compartments.
           </p>
         </section>
@@ -464,8 +609,8 @@ export default function StorageDesignAssistant() {
             </h2>
 
             <p className="mt-3 max-w-2xl leading-7 text-neutral-600">
-              Choose whether the total outside size or the required usable space
-              should determine the design.
+              Choose whether the overall outside size or the required usable
+              space should determine the design.
             </p>
           </header>
 
@@ -478,28 +623,16 @@ export default function StorageDesignAssistant() {
         </section>
       )}
 
-      {dimensionStrategy === "outside-led" && (
+      {dimensionStrategy && (
         <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-6">
           <h2 className="text-lg font-semibold text-neutral-900">
-            Overall outside size selected
+            {dimensionStrategy === "outside-led"
+              ? "Overall outside size selected"
+              : "Required usable space selected"}
           </h2>
 
           <p className="mt-2 leading-7 text-neutral-600">
-            You will specify the overall outside dimensions of the complete
-            storage solution. All tray, usable-space and compartment dimensions
-            will be calculated from the outside in.
-          </p>
-        </section>
-      )}
-
-      {dimensionStrategy === "usable-space-led" && (
-        <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-6">
-          <h2 className="text-lg font-semibold text-neutral-900">
-            Required usable space selected
-          </h2>
-
-          <p className="mt-2 leading-7 text-neutral-600">
-            {getUsableSpaceDescription()}
+            {getDimensionStrategyDescription()}
           </p>
         </section>
       )}
@@ -531,32 +664,78 @@ export default function StorageDesignAssistant() {
 
       {heightIsValid && (
         <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-6">
-          <h2 className="text-lg font-semibold text-neutral-900">
-            Dimensions specified
+          <h2 className="text-xl font-semibold text-neutral-900">
+            Dimension input complete
           </h2>
 
-          <dl className="mt-4 grid gap-4 text-neutral-600 sm:grid-cols-3">
+          <div className="mt-6 grid gap-8 md:grid-cols-2">
             <div>
-              <dt className="text-sm text-neutral-500">{getWidthLabel()}</dt>
-              <dd className="mt-1 font-medium text-neutral-900">
-                {requestedWidthValue} mm
-              </dd>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                Configuration
+              </h3>
+
+              <dl className="mt-4 space-y-3">
+                <div>
+                  <dt className="text-sm text-neutral-500">Build type</dt>
+                  <dd className="font-medium text-neutral-900">
+                    {getBuildTypeLabel(buildType)}
+                  </dd>
+                </div>
+
+                {buildType === "system" && (
+                  <div>
+                    <dt className="text-sm text-neutral-500">Tray type</dt>
+                    <dd className="font-medium text-neutral-900">
+                      {getTrayTypeLabel(trayType)}
+                    </dd>
+                  </div>
+                )}
+
+                {trayType === "dividers" && (
+                  <div>
+                    <dt className="text-sm text-neutral-500">Divider layout</dt>
+                    <dd className="font-medium text-neutral-900">
+                      {getDividerLayoutLabel(dividerLayout)}
+                    </dd>
+                  </div>
+                )}
+
+                {equalGridSelected && (
+                  <div>
+                    <dt className="text-sm text-neutral-500">Grid</dt>
+                    <dd className="font-medium text-neutral-900">
+                      {rows} rows × {columns} columns
+                    </dd>
+                  </div>
+                )}
+              </dl>
             </div>
 
             <div>
-              <dt className="text-sm text-neutral-500">{getDepthLabel()}</dt>
-              <dd className="mt-1 font-medium text-neutral-900">
-                {requestedDepthValue} mm
-              </dd>
-            </div>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                Sizing
+              </h3>
 
-            <div>
-              <dt className="text-sm text-neutral-500">{getHeightLabel()}</dt>
-              <dd className="mt-1 font-medium text-neutral-900">
-                {requestedHeightValue} mm
-              </dd>
+              <dl className="mt-4 space-y-3">
+                <div>
+                  <dt className="text-sm text-neutral-500">Sizing method</dt>
+                  <dd className="font-medium text-neutral-900">
+                    {getDimensionStrategyLabel(dimensionStrategy)}
+                  </dd>
+                </div>
+
+                <div>
+                  <dt className="text-sm text-neutral-500">
+                    {getSpecifiedDimensionLabel()}
+                  </dt>
+                  <dd className="font-medium text-neutral-900">
+                    {requestedWidthValue} × {requestedDepthValue} ×{" "}
+                    {requestedHeightValue} mm
+                  </dd>
+                </div>
+              </dl>
             </div>
-          </dl>
+          </div>
         </section>
       )}
     </div>
