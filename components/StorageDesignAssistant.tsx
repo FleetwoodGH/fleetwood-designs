@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import DecisionStep from "@/components/DecisionStep";
-import NumberSelector from "@/components/NumberSelector";
-import ParameterInput from "@/components/ParameterInput";
+import DimensionInputs from "@/components/DimensionInputs";
+import EqualGridInput from "@/components/EqualGridInput";
 
 type BuildType = "box" | "system" | null;
 type TrayType = "open" | "lid" | "dividers" | null;
@@ -12,7 +12,10 @@ type DimensionStrategy = "outside-led" | "usable-space-led" | null;
 
 const MIN_GRID_SIZE = 1;
 const MAX_GRID_SIZE = 6;
+
 const MIN_WIDTH = 20;
+const MIN_DEPTH = 20;
+const MIN_HEIGHT = 10;
 
 const buildOptions = [
   {
@@ -84,6 +87,10 @@ const dimensionStrategyOptions = [
   },
 ];
 
+function isWholeNumber(value: string) {
+  return value === "" || /^\d+$/.test(value);
+}
+
 export default function StorageDesignAssistant() {
   const [buildType, setBuildType] = useState<BuildType>(null);
   const [trayType, setTrayType] = useState<TrayType>(null);
@@ -96,9 +103,61 @@ export default function StorageDesignAssistant() {
   const [gridConfirmed, setGridConfirmed] = useState(false);
 
   const [requestedWidth, setRequestedWidth] = useState("");
+  const [requestedDepth, setRequestedDepth] = useState("");
+  const [requestedHeight, setRequestedHeight] = useState("");
+
+  const equalGridSelected =
+    trayType === "dividers" && dividerLayout === "equal";
+
+  const customGridSelected =
+    trayType === "dividers" && dividerLayout === "custom";
+
+  const designPhaseComplete =
+    buildType === "box" ||
+    (buildType === "system" && trayType !== null && trayType !== "dividers") ||
+    customGridSelected ||
+    (equalGridSelected && gridConfirmed);
+
+  const requestedWidthValue =
+    requestedWidth === "" ? null : Number(requestedWidth);
+
+  const requestedDepthValue =
+    requestedDepth === "" ? null : Number(requestedDepth);
+
+  const requestedHeightValue =
+    requestedHeight === "" ? null : Number(requestedHeight);
+
+  const widthIsValid =
+    requestedWidthValue !== null &&
+    Number.isInteger(requestedWidthValue) &&
+    requestedWidthValue >= MIN_WIDTH;
+
+  const depthIsValid =
+    requestedDepthValue !== null &&
+    Number.isInteger(requestedDepthValue) &&
+    requestedDepthValue >= MIN_DEPTH;
+
+  const heightIsValid =
+    requestedHeightValue !== null &&
+    Number.isInteger(requestedHeightValue) &&
+    requestedHeightValue >= MIN_HEIGHT;
+
+  const widthHasError = requestedWidth !== "" && !widthIsValid;
+  const depthHasError = requestedDepth !== "" && !depthIsValid;
+  const heightHasError = requestedHeight !== "" && !heightIsValid;
+
+  function resetHeight() {
+    setRequestedHeight("");
+  }
+
+  function resetDepthAndHeight() {
+    setRequestedDepth("");
+    resetHeight();
+  }
 
   function resetDimensionParameters() {
     setRequestedWidth("");
+    resetDepthAndHeight();
   }
 
   function resetDimensions() {
@@ -165,9 +224,29 @@ export default function StorageDesignAssistant() {
   }
 
   function handleWidthChange(value: string) {
-    if (value === "" || /^\d+$/.test(value)) {
-      setRequestedWidth(value);
+    if (!isWholeNumber(value)) {
+      return;
     }
+
+    setRequestedWidth(value);
+    resetDepthAndHeight();
+  }
+
+  function handleDepthChange(value: string) {
+    if (!isWholeNumber(value)) {
+      return;
+    }
+
+    setRequestedDepth(value);
+    resetHeight();
+  }
+
+  function handleHeightChange(value: string) {
+    if (!isWholeNumber(value)) {
+      return;
+    }
+
+    setRequestedHeight(value);
   }
 
   function getUsableSpaceDescription() {
@@ -183,88 +262,104 @@ export default function StorageDesignAssistant() {
       return "You will specify the required usable dimensions inside a tray with a lid. The tray and overall box dimensions will be calculated automatically.";
     }
 
-    if (trayType === "dividers" && dividerLayout === "equal") {
+    if (equalGridSelected) {
       return `You will specify the required dimensions of one compartment. The complete ${rows} × ${columns} grid, tray and overall box dimensions will be calculated automatically.`;
     }
 
-    if (trayType === "dividers" && dividerLayout === "custom") {
+    if (customGridSelected) {
       return "You will specify the required usable tray area. Custom compartment positions will be configured separately.";
     }
 
     return "";
   }
 
-  function getWidthTitle() {
+  function getDimensionTitle() {
     if (dimensionStrategy === "outside-led") {
-      return "Specify the overall width";
+      return "Specify the overall dimensions";
     }
 
-    if (trayType === "dividers" && dividerLayout === "equal") {
-      return "Specify the compartment width";
+    if (equalGridSelected) {
+      return "Specify the compartment dimensions";
     }
 
     if (buildType === "box") {
-      return "Specify the usable box width";
+      return "Specify the usable box dimensions";
     }
 
-    return "Specify the usable tray width";
+    return "Specify the usable tray dimensions";
+  }
+
+  function getDimensionDescription() {
+    if (dimensionStrategy === "outside-led") {
+      return "Enter the maximum outside dimensions of the complete storage solution.";
+    }
+
+    if (equalGridSelected) {
+      return `Enter the required usable dimensions of one compartment. The complete ${rows} × ${columns} grid and overall storage solution will be calculated automatically.`;
+    }
+
+    if (buildType === "box") {
+      return "Enter the usable dimensions required inside the storage box.";
+    }
+
+    if (trayType === "lid") {
+      return "Enter the usable dimensions required inside one tray with a lid.";
+    }
+
+    if (trayType === "dividers") {
+      return "Enter the usable dimensions required inside the divided tray.";
+    }
+
+    return "Enter the usable dimensions required inside one open tray.";
   }
 
   function getWidthLabel() {
     if (dimensionStrategy === "outside-led") {
-      return "Overall outside width";
+      return "Outside width";
     }
 
-    if (trayType === "dividers" && dividerLayout === "equal") {
-      return "Width of one compartment";
+    if (equalGridSelected) {
+      return "Compartment width";
     }
 
     if (buildType === "box") {
-      return "Usable inside width";
+      return "Inside width";
     }
 
-    return "Usable tray width";
+    return "Tray width";
   }
 
-  function getWidthDescription() {
+  function getDepthLabel() {
     if (dimensionStrategy === "outside-led") {
-      return "Enter the maximum outside width of the complete storage solution.";
+      return "Outside depth";
     }
 
-    if (trayType === "dividers" && dividerLayout === "equal") {
-      return `Enter the required usable width of one compartment. The total width of the ${columns}-column grid will be calculated automatically.`;
+    if (equalGridSelected) {
+      return "Compartment depth";
     }
 
     if (buildType === "box") {
-      return "Enter the usable width required inside the storage box.";
+      return "Inside depth";
     }
 
-    if (trayType === "lid") {
-      return "Enter the usable width required inside one tray with a lid.";
-    }
-
-    if (trayType === "dividers") {
-      return "Enter the usable width required inside the divided tray.";
-    }
-
-    return "Enter the usable width required inside one open tray.";
+    return "Tray depth";
   }
 
-  const requestedWidthValue =
-    requestedWidth === "" ? null : Number(requestedWidth);
+  function getHeightLabel() {
+    if (dimensionStrategy === "outside-led") {
+      return "Outside height";
+    }
 
-  const widthIsValid =
-    requestedWidthValue !== null &&
-    Number.isInteger(requestedWidthValue) &&
-    requestedWidthValue >= MIN_WIDTH;
+    if (equalGridSelected) {
+      return "Compartment height";
+    }
 
-  const widthHasError = requestedWidth !== "" && !widthIsValid;
+    if (buildType === "box") {
+      return "Inside height";
+    }
 
-  const designPhaseComplete =
-    buildType === "box" ||
-    (buildType === "system" && trayType !== null && trayType !== "dividers") ||
-    (trayType === "dividers" && dividerLayout === "custom") ||
-    (trayType === "dividers" && dividerLayout === "equal" && gridConfirmed);
+    return "Tray height";
+  }
 
   return (
     <div className="space-y-12">
@@ -318,50 +413,20 @@ export default function StorageDesignAssistant() {
         </section>
       )}
 
-      {dividerLayout === "equal" && (
-        <ParameterInput
-          title="Configure the equal grid"
-          description="Choose how many equally sized rows and columns the tray should contain."
-        >
-          <div className="grid gap-8 sm:grid-cols-2">
-            <NumberSelector
-              label="Rows"
-              value={rows}
-              min={MIN_GRID_SIZE}
-              max={MAX_GRID_SIZE}
-              onChange={updateRows}
-            />
-
-            <NumberSelector
-              label="Columns"
-              value={columns}
-              min={MIN_GRID_SIZE}
-              max={MAX_GRID_SIZE}
-              onChange={updateColumns}
-            />
-          </div>
-
-          <div className="mt-8 border-t border-neutral-200 pt-6">
-            <p className="text-sm text-neutral-600">
-              This creates {rows * columns} equally sized compartments.
-            </p>
-
-            <p className="mt-2 text-sm text-neutral-500">
-              Maximum: {MAX_GRID_SIZE} rows × {MAX_GRID_SIZE} columns.
-            </p>
-
-            <button
-              type="button"
-              onClick={() => setGridConfirmed(true)}
-              className="mt-6 rounded-lg bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-700"
-            >
-              Continue
-            </button>
-          </div>
-        </ParameterInput>
+      {equalGridSelected && (
+        <EqualGridInput
+          rows={rows}
+          columns={columns}
+          min={MIN_GRID_SIZE}
+          max={MAX_GRID_SIZE}
+          confirmed={gridConfirmed}
+          onRowsChange={updateRows}
+          onColumnsChange={updateColumns}
+          onConfirm={() => setGridConfirmed(true)}
+        />
       )}
 
-      {dividerLayout === "custom" && (
+      {customGridSelected && (
         <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-6">
           <h2 className="text-lg font-semibold text-neutral-900">
             Custom layout selected
@@ -374,7 +439,7 @@ export default function StorageDesignAssistant() {
         </section>
       )}
 
-      {gridConfirmed && dividerLayout === "equal" && (
+      {gridConfirmed && equalGridSelected && (
         <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-6">
           <h2 className="text-lg font-semibold text-neutral-900">
             Design configuration complete
@@ -440,74 +505,58 @@ export default function StorageDesignAssistant() {
       )}
 
       {dimensionStrategy && (
-        <ParameterInput
-          title={getWidthTitle()}
-          description={getWidthDescription()}
-        >
-          <div className="max-w-sm">
-            <label
-              htmlFor="requested-width"
-              className="block text-sm font-medium text-neutral-900"
-            >
-              {getWidthLabel()}
-            </label>
-
-            <div className="relative mt-2">
-              <input
-                id="requested-width"
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                value={requestedWidth}
-                onChange={(event) => handleWidthChange(event.target.value)}
-                aria-invalid={widthHasError}
-                aria-describedby={
-                  widthHasError
-                    ? "requested-width-error"
-                    : "requested-width-help"
-                }
-                className={[
-                  "w-full rounded-lg border bg-white px-4 py-3 pr-14 text-neutral-900 outline-none transition",
-                  "focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2",
-                  widthHasError
-                    ? "border-red-500"
-                    : "border-neutral-300 hover:border-neutral-400",
-                ].join(" ")}
-              />
-
-              <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm text-neutral-500">
-                mm
-              </span>
-            </div>
-
-            {widthHasError ? (
-              <p
-                id="requested-width-error"
-                className="mt-2 text-sm text-red-600"
-              >
-                Width must be at least {MIN_WIDTH} mm.
-              </p>
-            ) : (
-              <p
-                id="requested-width-help"
-                className="mt-2 text-sm text-neutral-500"
-              >
-                Enter a whole number of at least {MIN_WIDTH} mm.
-              </p>
-            )}
-          </div>
-        </ParameterInput>
+        <DimensionInputs
+          title={getDimensionTitle()}
+          description={getDimensionDescription()}
+          width={requestedWidth}
+          depth={requestedDepth}
+          height={requestedHeight}
+          widthLabel={getWidthLabel()}
+          depthLabel={getDepthLabel()}
+          heightLabel={getHeightLabel()}
+          minWidth={MIN_WIDTH}
+          minDepth={MIN_DEPTH}
+          minHeight={MIN_HEIGHT}
+          widthIsValid={widthIsValid}
+          depthIsValid={depthIsValid}
+          heightIsValid={heightIsValid}
+          widthHasError={widthHasError}
+          depthHasError={depthHasError}
+          heightHasError={heightHasError}
+          onWidthChange={handleWidthChange}
+          onDepthChange={handleDepthChange}
+          onHeightChange={handleHeightChange}
+        />
       )}
 
-      {widthIsValid && (
+      {heightIsValid && (
         <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-6">
           <h2 className="text-lg font-semibold text-neutral-900">
-            Width specified
+            Dimensions specified
           </h2>
 
-          <p className="mt-2 text-neutral-600">
-            {getWidthLabel()}: {requestedWidthValue} mm.
-          </p>
+          <dl className="mt-4 grid gap-4 text-neutral-600 sm:grid-cols-3">
+            <div>
+              <dt className="text-sm text-neutral-500">{getWidthLabel()}</dt>
+              <dd className="mt-1 font-medium text-neutral-900">
+                {requestedWidthValue} mm
+              </dd>
+            </div>
+
+            <div>
+              <dt className="text-sm text-neutral-500">{getDepthLabel()}</dt>
+              <dd className="mt-1 font-medium text-neutral-900">
+                {requestedDepthValue} mm
+              </dd>
+            </div>
+
+            <div>
+              <dt className="text-sm text-neutral-500">{getHeightLabel()}</dt>
+              <dd className="mt-1 font-medium text-neutral-900">
+                {requestedHeightValue} mm
+              </dd>
+            </div>
+          </dl>
         </section>
       )}
     </div>
