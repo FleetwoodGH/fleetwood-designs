@@ -8,6 +8,7 @@ import NumberSelector from "@/components/NumberSelector";
 type BuildType = "box" | "system" | null;
 type TrayType = "open" | "lid" | "dividers" | null;
 type DividerLayout = "equal" | "custom" | null;
+type DimensionReference = "outside" | "inside" | null;
 
 const MIN_GRID_SIZE = 1;
 const MAX_GRID_SIZE = 6;
@@ -65,19 +66,43 @@ const dividerLayoutOptions = [
   },
 ];
 
+const dimensionReferenceOptions = [
+  {
+    id: "outside",
+    title: "Outside Dimensions",
+    description:
+      "Specify the overall outside size of the complete storage solution. The internal storage space will be calculated automatically.",
+    icon: "⬜",
+  },
+  {
+    id: "inside",
+    title: "Inside Dimensions",
+    description:
+      "Specify the usable internal storage space that should be available. The overall outside size will be calculated automatically.",
+    icon: "◻️",
+  },
+];
+
 export default function StorageDesignAssistant() {
   const [buildType, setBuildType] = useState<BuildType>(null);
   const [trayType, setTrayType] = useState<TrayType>(null);
   const [dividerLayout, setDividerLayout] = useState<DividerLayout>(null);
+  const [dimensionReference, setDimensionReference] =
+    useState<DimensionReference>(null);
 
   const [rows, setRows] = useState(2);
   const [columns, setColumns] = useState(2);
   const [gridConfirmed, setGridConfirmed] = useState(false);
 
+  function resetDimensions() {
+    setDimensionReference(null);
+  }
+
   function resetGrid() {
     setRows(2);
     setColumns(2);
     setGridConfirmed(false);
+    resetDimensions();
   }
 
   function handleBuildTypeSelect(optionId: string) {
@@ -110,15 +135,31 @@ export default function StorageDesignAssistant() {
     resetGrid();
   }
 
+  function handleDimensionReferenceSelect(optionId: string) {
+    if (optionId !== "outside" && optionId !== "inside") {
+      return;
+    }
+
+    setDimensionReference(optionId);
+  }
+
   function updateRows(value: number) {
     setRows(Math.min(MAX_GRID_SIZE, Math.max(MIN_GRID_SIZE, value)));
     setGridConfirmed(false);
+    resetDimensions();
   }
 
   function updateColumns(value: number) {
     setColumns(Math.min(MAX_GRID_SIZE, Math.max(MIN_GRID_SIZE, value)));
     setGridConfirmed(false);
+    resetDimensions();
   }
+
+  const designPhaseComplete =
+    buildType === "box" ||
+    (buildType === "system" && trayType !== null && trayType !== "dividers") ||
+    (trayType === "dividers" && dividerLayout === "custom") ||
+    (trayType === "dividers" && dividerLayout === "equal" && gridConfirmed);
 
   return (
     <div className="space-y-12">
@@ -145,8 +186,8 @@ export default function StorageDesignAssistant() {
           </h2>
 
           <p className="mt-2 text-neutral-600">
-            You have selected a storage box. Dimensions will be configured in
-            the next phase.
+            You have selected a storage box. Continue below to configure its
+            dimensions.
           </p>
         </section>
       )}
@@ -167,7 +208,7 @@ export default function StorageDesignAssistant() {
           </h2>
 
           <p className="mt-2 text-neutral-600">
-            Dimensions will be configured in the next phase.
+            Continue below to configure the dimensions of your storage system.
           </p>
         </section>
       )}
@@ -236,8 +277,48 @@ export default function StorageDesignAssistant() {
 
           <p className="mt-2 text-neutral-600">
             Your tray will contain {rows} rows and {columns} columns, creating{" "}
-            {rows * columns} equally sized compartments. Dimensions will be
-            configured in the next phase.
+            {rows * columns} equally sized compartments.
+          </p>
+        </section>
+      )}
+
+      {designPhaseComplete && (
+        <section className="space-y-8 border-t border-neutral-200 pt-12">
+          <header>
+            <p className="text-sm font-semibold uppercase tracking-widest text-neutral-500">
+              Phase 2
+            </p>
+
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-neutral-900">
+              Dimensions
+            </h2>
+
+            <p className="mt-3 max-w-2xl leading-7 text-neutral-600">
+              Now let&apos;s determine the size of your storage solution.
+            </p>
+          </header>
+
+          <DecisionStep
+            question="What should the specified dimensions represent?"
+            options={dimensionReferenceOptions}
+            selectedOption={dimensionReference}
+            onSelect={handleDimensionReferenceSelect}
+          />
+        </section>
+      )}
+
+      {dimensionReference && (
+        <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900">
+            Dimension reference selected
+          </h2>
+
+          <p className="mt-2 text-neutral-600">
+            You will specify the{" "}
+            {dimensionReference === "outside"
+              ? "overall outside dimensions"
+              : "usable inside dimensions"}{" "}
+            of your storage solution.
           </p>
         </section>
       )}
