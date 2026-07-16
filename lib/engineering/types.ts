@@ -75,6 +75,46 @@ export type DividerConfiguration = {
   horizontalToggles: number[];
 };
 
+export type MakerWorldBoxParameters = {
+  boxOutsideWidth: number;
+  boxOutsideDepth: number;
+
+  boxInsideWidth: number;
+  boxInsideDepth: number;
+};
+
+export type MakerWorldTrayParameters = {
+  trayOutsideWidth: number;
+  trayOutsideDepth: number;
+
+  trayUsableWidth: number;
+  trayUsableDepth: number;
+};
+
+export type MakerWorldGridParameters = {
+  trayNumber: number;
+  rows: number;
+  columns: number;
+};
+
+export type MakerWorldDividerParameters = {
+  verticalPositions: number[];
+  horizontalPositions: number[];
+
+  verticalToggles: number[];
+  horizontalToggles: number[];
+};
+
+export type MakerWorldParameterSet = {
+  strategy: DimensionStrategy;
+
+  box: MakerWorldBoxParameters;
+  tray: MakerWorldTrayParameters | null;
+  grid: MakerWorldGridParameters;
+
+  dividers: MakerWorldDividerParameters | null;
+};
+
 export type CalculationResult = {
   strategy: DimensionStrategy;
 

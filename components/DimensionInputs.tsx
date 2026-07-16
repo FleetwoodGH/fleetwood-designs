@@ -52,7 +52,7 @@ function DimensionField({
   const errorId = `${id}-error`;
 
   return (
-    <div className="w-full sm:w-[180px] sm:flex-none">
+    <div className="min-w-0">
       <label
         htmlFor={id}
         className="block text-sm font-medium text-neutral-900"
@@ -60,7 +60,15 @@ function DimensionField({
         {label}
       </label>
 
-      <div className="relative mt-2">
+      <div
+        className={[
+          "mt-2 flex overflow-hidden rounded-lg border bg-white transition",
+          "focus-within:ring-2 focus-within:ring-neutral-900 focus-within:ring-offset-2",
+          hasError
+            ? "border-red-500"
+            : "border-neutral-300 hover:border-neutral-400",
+        ].join(" ")}
+      >
         <input
           id={id}
           type="text"
@@ -70,16 +78,10 @@ function DimensionField({
           onChange={(event) => onChange(event.target.value)}
           aria-invalid={hasError}
           aria-describedby={hasError ? errorId : helpId}
-          className={[
-            "w-full rounded-lg border bg-white px-4 py-3 pr-12 text-neutral-900 outline-none transition",
-            "focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2",
-            hasError
-              ? "border-red-500"
-              : "border-neutral-300 hover:border-neutral-400",
-          ].join(" ")}
+          className="min-w-0 flex-1 bg-transparent px-4 py-3 text-neutral-900 outline-none"
         />
 
-        <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm text-neutral-500">
+        <span className="flex shrink-0 items-center border-l border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-500">
           mm
         </span>
       </div>
@@ -121,7 +123,7 @@ export default function DimensionInputs({
 }: DimensionInputsProps) {
   return (
     <ParameterInput title={title} description={description}>
-      <div className="flex flex-col gap-6 sm:flex-row sm:flex-wrap sm:items-start">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
         <DimensionField
           id="requested-width"
           label={widthLabel}
