@@ -30,6 +30,7 @@ export default function TrayHeightInput({
           label={label}
           value={value}
           minimum={minimumHeight}
+          minimumIsExclusive
           isValid={isValid}
           hasError={hasError}
           inputMode="decimal"

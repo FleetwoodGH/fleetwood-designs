@@ -17,9 +17,12 @@ import type {
 
 import type { CalculationInput } from "@/lib/engineering/types";
 
+// TODO: Replace these temporary placeholders with the authoritative Fusion
+// parameter limits when they are synchronized into the engineering architecture.
 const MIN_WIDTH = 20;
 const MIN_DEPTH = 20;
-const MIN_ENGINEERING_HEIGHT = 1;
+
+const MIN_STANDALONE_BOX_HEIGHT = 1;
 
 function isWholeNumber(value: string) {
   return value === "" || /^\d+$/.test(value);
@@ -82,6 +85,11 @@ export function useStorageDesignState() {
   const requestedTrayHeightValue =
     requestedTrayHeight === "" ? null : Number(requestedTrayHeight);
 
+  const minimumTrayHeightExclusive =
+    dimensionStrategy === "outside-led"
+      ? ENGINEERING_LIMITS.trayHeight.minimumOutsideExclusive
+      : ENGINEERING_LIMITS.trayHeight.minimumUsableExclusive;
+
   const widthIsValid =
     requestedWidthValue !== null &&
     Number.isInteger(requestedWidthValue) &&
@@ -95,12 +103,12 @@ export function useStorageDesignState() {
   const boxHeightIsValid =
     boxHeightValue !== null &&
     Number.isInteger(boxHeightValue) &&
-    boxHeightValue >= MIN_ENGINEERING_HEIGHT;
+    boxHeightValue >= MIN_STANDALONE_BOX_HEIGHT;
 
   const trayHeightIsValid =
     requestedTrayHeightValue !== null &&
     Number.isFinite(requestedTrayHeightValue) &&
-    requestedTrayHeightValue >= MIN_ENGINEERING_HEIGHT;
+    requestedTrayHeightValue > minimumTrayHeightExclusive;
 
   const widthHasError = requestedWidth !== "" && !widthIsValid;
   const depthHasError = requestedDepth !== "" && !depthIsValid;
@@ -444,7 +452,8 @@ export function useStorageDesignState() {
 
       minWidth: MIN_WIDTH,
       minDepth: MIN_DEPTH,
-      minimumEngineeringHeight: MIN_ENGINEERING_HEIGHT,
+      minimumBoxHeight: MIN_STANDALONE_BOX_HEIGHT,
+      minimumTrayHeightExclusive,
 
       widthIsValid,
       depthIsValid,

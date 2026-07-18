@@ -42,4 +42,11 @@ export const ENGINEERING_LIMITS = {
     minimum: 1,
     maximum: 10,
   },
+
+  trayHeight: {
+    minimumUsableExclusive: 0,
+    minimumOutsideExclusive:
+      ENGINEERING_CONSTANTS.tray.bottomThickness +
+      ENGINEERING_CONSTANTS.tray.lidHeightContribution,
+  },
 } as const;

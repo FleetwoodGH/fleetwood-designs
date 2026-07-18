@@ -70,6 +70,30 @@ function validateHeightResult(result: CalculationResult, testName: string) {
 validateHeightResult(outsideLedResult, "Outside-led height validation");
 validateHeightResult(usableSpaceLedResult, "Usable-space-led height validation");
 
+function validateRejectedOutsideHeight(trayOutsideHeight: number) {
+  try {
+    calculateOutsideLed({
+      ...outsideLedInput,
+      heights: { trayOutsideHeight },
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.includes("must be greater than 6.5 mm")
+    ) {
+      return;
+    }
+
+    throw error;
+  }
+
+  throw new Error(
+    `Outside-led height validation accepted invalid ${trayOutsideHeight} mm tray height.`,
+  );
+}
+
+validateRejectedOutsideHeight(6.5);
+
 export default function EngineeringTestPage() {
   const result = outsideLedResult;
 

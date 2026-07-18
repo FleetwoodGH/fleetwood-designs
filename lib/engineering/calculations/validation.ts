@@ -28,6 +28,16 @@ export function validateCalculationInput(input: CalculationInput) {
       input.heights.trayOutsideHeight,
       "Tray outside height",
     );
+
+    if (
+      input.heights.trayOutsideHeight <=
+      ENGINEERING_LIMITS.trayHeight.minimumOutsideExclusive
+    ) {
+      throw new Error(
+        `Tray outside height must be greater than ${ENGINEERING_LIMITS.trayHeight.minimumOutsideExclusive} mm ` +
+          "to provide positive usable height after the tray bottom and lid assembly.",
+      );
+    }
   } else {
     requirePositiveValue(input.heights.usableTrayHeight, "Usable tray height");
   }
