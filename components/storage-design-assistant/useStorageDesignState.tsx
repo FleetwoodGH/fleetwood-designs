@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { calculateStorageDesign } from "@/lib/engineering/calculations";
 import { ENGINEERING_LIMITS } from "@/lib/engineering/engineeringConstants";
+import { STORAGE_DESIGN_WORKFLOW_DEFAULTS } from "@/components/storage-design-assistant/workflowDefaults";
 
 import type {
   BuildType,
@@ -37,14 +38,18 @@ export function useStorageDesignState() {
     useState<DimensionStrategy>(null);
 
   const [trayNumber, setTrayNumber] = useState<number>(
-    ENGINEERING_LIMITS.trays.minimum,
+    STORAGE_DESIGN_WORKFLOW_DEFAULTS.trayNumber,
   );
 
   const [trayNumberConfirmed, setTrayNumberConfirmed] =
     useState<boolean>(false);
 
-  const [rows, setRows] = useState<number>(2);
-  const [columns, setColumns] = useState<number>(2);
+  const [rows, setRows] = useState<number>(
+    STORAGE_DESIGN_WORKFLOW_DEFAULTS.equalGrid.rows,
+  );
+  const [columns, setColumns] = useState<number>(
+    STORAGE_DESIGN_WORKFLOW_DEFAULTS.equalGrid.columns,
+  );
   const [gridConfirmed, setGridConfirmed] = useState<boolean>(false);
 
   const [requestedWidth, setRequestedWidth] = useState<string>("");
@@ -224,14 +229,14 @@ export function useStorageDesignState() {
   }
 
   function resetGrid() {
-    setRows(2);
-    setColumns(2);
+    setRows(STORAGE_DESIGN_WORKFLOW_DEFAULTS.equalGrid.rows);
+    setColumns(STORAGE_DESIGN_WORKFLOW_DEFAULTS.equalGrid.columns);
     setGridConfirmed(false);
     resetDimensions();
   }
 
   function resetTrayConfiguration() {
-    setTrayNumber(ENGINEERING_LIMITS.trays.minimum);
+    setTrayNumber(STORAGE_DESIGN_WORKFLOW_DEFAULTS.trayNumber);
     setTrayNumberConfirmed(false);
     setDividerLayout(null);
     resetGrid();

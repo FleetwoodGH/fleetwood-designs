@@ -1,16 +1,18 @@
 export const ENGINEERING_CONSTANTS = {
   box: {
+    // One shared construction thickness is used for the left, right and front walls.
     wallThickness: 4,
     backWallThickness: 5,
+    // Reserved for the future standalone box height model.
     bottomThickness: 3,
     lidHeight: 13,
   },
 
   tray: {
-    clearance: 0.4,
+    boxClearancePerSide: 0.4,
     wallThickness: 2.5,
     bottomThickness: 2.5,
-    sideAirGap: 2,
+    lateralAirGapPerSide: 2,
     lidHeightContribution: 4,
     verticalOverlap: 2,
   },

@@ -14,25 +14,25 @@ function roundDimension(value: number) {
 
 export function calculateTrayOutsideWidth(boxInsideWidth: number) {
   return roundDimension(
-    boxInsideWidth - 2 * ENGINEERING_CONSTANTS.tray.clearance,
+    boxInsideWidth - 2 * ENGINEERING_CONSTANTS.tray.boxClearancePerSide,
   );
 }
 
 export function calculateBoxInsideWidthFromTray(trayOutsideWidth: number) {
   return roundDimension(
-    trayOutsideWidth + 2 * ENGINEERING_CONSTANTS.tray.clearance,
+    trayOutsideWidth + 2 * ENGINEERING_CONSTANTS.tray.boxClearancePerSide,
   );
 }
 
 export function calculateTrayOutsideDepth(boxInsideDepth: number) {
   return roundDimension(
-    boxInsideDepth - 2 * ENGINEERING_CONSTANTS.tray.clearance,
+    boxInsideDepth - 2 * ENGINEERING_CONSTANTS.tray.boxClearancePerSide,
   );
 }
 
 export function calculateBoxInsideDepthFromTray(trayOutsideDepth: number) {
   return roundDimension(
-    trayOutsideDepth + 2 * ENGINEERING_CONSTANTS.tray.clearance,
+    trayOutsideDepth + 2 * ENGINEERING_CONSTANTS.tray.boxClearancePerSide,
   );
 }
 
@@ -40,7 +40,7 @@ export function calculateTrayUsableWidth(trayOutsideWidth: number) {
   return roundDimension(
     trayOutsideWidth -
       2 * ENGINEERING_CONSTANTS.tray.wallThickness -
-      2 * ENGINEERING_CONSTANTS.tray.sideAirGap,
+      2 * ENGINEERING_CONSTANTS.tray.lateralAirGapPerSide,
   );
 }
 
@@ -50,7 +50,7 @@ export function calculateTrayOutsideWidthFromUsableWidth(
   return roundDimension(
     trayUsableWidth +
       2 * ENGINEERING_CONSTANTS.tray.wallThickness +
-      2 * ENGINEERING_CONSTANTS.tray.sideAirGap,
+      2 * ENGINEERING_CONSTANTS.tray.lateralAirGapPerSide,
   );
 }
 
