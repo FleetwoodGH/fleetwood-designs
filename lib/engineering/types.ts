@@ -68,51 +68,14 @@ export type DividerConfiguration = {
   /**
    * Fusion-compatible toggle values.
    *
-   * Each array always contains five values because a maximum
-   * 6 × 6 grid requires five dividers in each direction.
+   * The Engineering Calculation Engine may expose more slots than
+   * an individual published MakerWorld model supports.
+   *
+   * The MakerWorld model profile determines which slots are included
+   * in the generated parameter set.
    */
   verticalToggles: number[];
   horizontalToggles: number[];
-};
-
-export type MakerWorldBoxParameters = {
-  boxOutsideWidth: number;
-  boxOutsideDepth: number;
-
-  boxInsideWidth: number;
-  boxInsideDepth: number;
-};
-
-export type MakerWorldTrayParameters = {
-  trayOutsideWidth: number;
-  trayOutsideDepth: number;
-
-  trayUsableWidth: number;
-  trayUsableDepth: number;
-};
-
-export type MakerWorldGridParameters = {
-  trayNumber: number;
-  rows: number;
-  columns: number;
-};
-
-export type MakerWorldDividerParameters = {
-  verticalPositions: number[];
-  horizontalPositions: number[];
-
-  verticalToggles: number[];
-  horizontalToggles: number[];
-};
-
-export type MakerWorldParameterSet = {
-  strategy: DimensionStrategy;
-
-  box: MakerWorldBoxParameters;
-  tray: MakerWorldTrayParameters | null;
-  grid: MakerWorldGridParameters;
-
-  dividers: MakerWorldDividerParameters | null;
 };
 
 export type CalculationResult = {
