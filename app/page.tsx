@@ -22,10 +22,10 @@ export default function Home() {
         </h2>
 
         <Link
-          href="/storage/parametric-storage-system"
+          href="/configure/tray-storage-system"
           className="inline-flex rounded-lg border border-neutral-300 px-5 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
         >
-          Parametric Storage System →
+          Configure the Tray Storage System →
         </Link>
       </section>
     </main>

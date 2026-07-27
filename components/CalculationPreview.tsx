@@ -125,7 +125,7 @@ export default function CalculationPreview({
         )}
 
         {result.heights && (
-          <ResultSection title="Storage-System Heights">
+        <ResultSection title="Tray Storage System Heights">
             <DimensionRow
               label="Tray outside height"
               value={result.heights.trayOutsideHeight}
@@ -205,8 +205,8 @@ export default function CalculationPreview({
             </h3>
 
             <p className="mt-1 text-sm leading-6 text-neutral-600">
-              Width and depth calculations have been validated against Fusion
-              Version 6 – Design Assistant aligned.
+              Width and depth calculations have been validated against the Tray
+              Storage System reference model in Fusion Version 6.
             </p>
           </div>
         </div>

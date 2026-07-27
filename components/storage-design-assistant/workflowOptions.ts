@@ -1,20 +1,5 @@
 import type { DecisionOption } from "@/components/storage-design-assistant/types";
 
-export const buildOptions: DecisionOption[] = [
-  {
-    id: "box",
-    title: "Storage Box",
-    description: "A configurable box without trays.",
-    icon: "📦",
-  },
-  {
-    id: "system",
-    title: "Storage System",
-    description: "A system with one or more storage trays.",
-    icon: "🗃️",
-  },
-];
-
 export const trayOptions: DecisionOption[] = [
   {
     id: "open",

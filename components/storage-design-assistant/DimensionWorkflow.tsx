@@ -4,7 +4,6 @@ import DimensionInputs from "@/components/DimensionInputs";
 import { dimensionStrategyOptions } from "@/components/storage-design-assistant/workflowOptions";
 
 import type {
-  BuildType,
   DimensionStrategy,
   DimensionTarget,
 } from "@/components/storage-design-assistant/types";
@@ -13,14 +12,12 @@ import {
   getDepthLabel,
   getDimensionDescription,
   getDimensionStrategyDescription,
-  getBoxHeightLabel,
   getTrayHeightLabel,
   getWidthLabel,
 } from "@/components/storage-design-assistant/workflowText";
 
 type DimensionWorkflowProps = {
   designPhaseComplete: boolean;
-  buildType: BuildType;
 
   dimensionStrategy: DimensionStrategy;
   dimensionTarget: DimensionTarget;
@@ -31,38 +28,32 @@ type DimensionWorkflowProps = {
 
   requestedWidth: string;
   requestedDepth: string;
-  boxHeight: string;
   requestedTrayHeight: string;
 
   minWidth: number;
   minDepth: number;
   widthRequirement: string;
   depthRequirement: string;
-  minimumBoxHeight: number;
   minimumTrayHeight: number;
   trayHeightRequirement: string;
 
   widthIsValid: boolean;
   depthIsValid: boolean;
-  boxHeightIsValid: boolean;
   trayHeightIsValid: boolean;
 
   widthHasError: boolean;
   depthHasError: boolean;
-  boxHeightHasError: boolean;
   trayHeightHasError: boolean;
 
   onDimensionStrategySelect: (optionId: string) => void;
   onDimensionConfirm: () => void;
   onWidthChange: (value: string) => void;
   onDepthChange: (value: string) => void;
-  onBoxHeightChange: (value: string) => void;
   onTrayHeightChange: (value: string) => void;
 };
 
 export default function DimensionWorkflow({
   designPhaseComplete,
-  buildType,
   dimensionStrategy,
   dimensionTarget,
   trayNumber,
@@ -70,28 +61,23 @@ export default function DimensionWorkflow({
   columns,
   requestedWidth,
   requestedDepth,
-  boxHeight,
   requestedTrayHeight,
   minWidth,
   minDepth,
   widthRequirement,
   depthRequirement,
-  minimumBoxHeight,
   minimumTrayHeight,
   trayHeightRequirement,
   widthIsValid,
   depthIsValid,
-  boxHeightIsValid,
   trayHeightIsValid,
   widthHasError,
   depthHasError,
-  boxHeightHasError,
   trayHeightHasError,
   onDimensionStrategySelect,
   onDimensionConfirm,
   onWidthChange,
   onDepthChange,
-  onBoxHeightChange,
   onTrayHeightChange,
 }: DimensionWorkflowProps) {
   const textContext = {
@@ -99,8 +85,7 @@ export default function DimensionWorkflow({
     rows,
     columns,
   };
-  const dimensionEntryComplete =
-    buildType === "box" ? boxHeightIsValid : trayHeightIsValid;
+  const dimensionEntryComplete = trayHeightIsValid;
 
   return (
     <>
@@ -117,7 +102,7 @@ export default function DimensionWorkflow({
             </h2>
 
             <p className="mt-1 max-w-2xl text-xs leading-4 text-neutral-500">
-              What dimensions should your storage solution have?
+              What dimensions should your Tray Storage System have?
             </p>
           </header>
 
@@ -144,44 +129,30 @@ export default function DimensionWorkflow({
           data-workflow-section="dimension-inputs"
         >
           <DimensionInputs
-            title={buildType === "box" ? "Box Dimensions" : "Tray Dimensions"}
+            title="Tray Dimensions"
             description={getDimensionDescription(dimensionTarget, textContext)}
             width={requestedWidth}
             depth={requestedDepth}
-            height={buildType === "box" ? boxHeight : requestedTrayHeight}
+            height={requestedTrayHeight}
             widthLabel={getWidthLabel(dimensionTarget)}
             depthLabel={getDepthLabel(dimensionTarget)}
-            heightLabel={
-              buildType === "box"
-                ? getBoxHeightLabel(dimensionTarget)
-                : getTrayHeightLabel(dimensionStrategy)
-            }
+            heightLabel={getTrayHeightLabel(dimensionStrategy)}
             minWidth={minWidth}
             minDepth={minDepth}
-            minHeight={
-              buildType === "box" ? minimumBoxHeight : minimumTrayHeight
-            }
+            minHeight={minimumTrayHeight}
             widthRequirement={widthRequirement}
             depthRequirement={depthRequirement}
-            heightRequirement={
-              buildType === "system" ? trayHeightRequirement : undefined
-            }
+            heightRequirement={trayHeightRequirement}
             widthIsValid={widthIsValid}
             depthIsValid={depthIsValid}
-            heightIsValid={
-              buildType === "box" ? boxHeightIsValid : trayHeightIsValid
-            }
+            heightIsValid={trayHeightIsValid}
             widthHasError={widthHasError}
             depthHasError={depthHasError}
-            heightHasError={
-              buildType === "box" ? boxHeightHasError : trayHeightHasError
-            }
-            heightInputMode={buildType === "box" ? "numeric" : "decimal"}
+            heightHasError={trayHeightHasError}
+            heightInputMode="decimal"
             onWidthChange={onWidthChange}
             onDepthChange={onDepthChange}
-            onHeightChange={
-              buildType === "box" ? onBoxHeightChange : onTrayHeightChange
-            }
+            onHeightChange={onTrayHeightChange}
             onConfirm={onDimensionConfirm}
           />
         </div>

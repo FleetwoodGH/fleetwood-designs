@@ -3,19 +3,16 @@ import EqualGridInput from "@/components/EqualGridInput";
 import TrayNumberInput from "@/components/TrayNumberInput";
 
 import {
-  buildOptions,
   dividerLayoutOptions,
   trayOptions,
 } from "@/components/storage-design-assistant/workflowOptions";
 
 import type {
-  BuildType,
   DividerLayout,
   TrayType,
 } from "@/components/storage-design-assistant/types";
 
 type DesignWorkflowProps = {
-  buildType: BuildType;
   trayType: TrayType;
   dividerLayout: DividerLayout;
 
@@ -34,7 +31,6 @@ type DesignWorkflowProps = {
   gridMinimum: number;
   gridMaximum: number;
 
-  onBuildTypeSelect: (optionId: string) => void;
   onTrayTypeSelect: (optionId: string) => void;
   onTrayNumberChange: (value: number) => void;
   onTrayNumberConfirm: () => void;
@@ -45,7 +41,6 @@ type DesignWorkflowProps = {
 };
 
 export default function DesignWorkflow({
-  buildType,
   trayType,
   dividerLayout,
   trayNumber,
@@ -59,7 +54,6 @@ export default function DesignWorkflow({
   trayMaximum,
   gridMinimum,
   gridMaximum,
-  onBuildTypeSelect,
   onTrayTypeSelect,
   onTrayNumberChange,
   onTrayNumberConfirm,
@@ -70,37 +64,22 @@ export default function DesignWorkflow({
 }: DesignWorkflowProps) {
   return (
     <>
-      <DecisionStep
-        question="What would you like to build?"
-        options={buildOptions}
-        selectedOption={buildType}
-        onSelect={onBuildTypeSelect}
-      />
+      <div
+        className={`scroll-mt-20 ${
+          trayType ? "" : "min-h-[calc(100vh-5rem)]"
+        }`}
+        data-workflow-section="tray-type"
+      >
+        <DecisionStep
+          question="Which type of tray would you like to use?"
+          options={trayOptions}
+          selectedOption={trayType}
+          columns={3}
+          onSelect={onTrayTypeSelect}
+        />
+      </div>
 
-      {buildType === "system" && (
-        <div
-          className={`scroll-mt-20 ${
-            trayType ? "" : "min-h-[calc(100vh-5rem)]"
-          }`}
-          data-workflow-section="tray-type"
-        >
-          <DecisionStep
-            question="Which type of tray would you like to use?"
-            options={trayOptions}
-            selectedOption={trayType}
-            columns={3}
-            onSelect={onTrayTypeSelect}
-          />
-        </div>
-      )}
-
-      {buildType === "box" && (
-        <p className="text-xs leading-4 text-neutral-500">
-          Storage Box selected. Next, choose the sizing approach.
-        </p>
-      )}
-
-      {buildType === "system" && trayType && (
+      {trayType && (
         <div
           className={`scroll-mt-20 ${
             trayNumberConfirmed ? "" : "min-h-[calc(100vh-5rem)]"

@@ -3,7 +3,7 @@
 import CalculationSection from "@/components/storage-design-assistant/CalculationSection";
 import DesignWorkflow from "@/components/storage-design-assistant/DesignWorkflow";
 import DimensionWorkflow from "@/components/storage-design-assistant/DimensionWorkflow";
-import { useStorageDesignState } from "@/components/storage-design-assistant/useStorageDesignState";
+import { useTrayStorageSystemState } from "@/components/storage-design-assistant/useTrayStorageSystemState";
 import WorkflowProgress from "@/components/WorkflowProgress";
 
 function scrollToWorkflowSection(selector: string) {
@@ -29,26 +29,15 @@ function scrollToWorkflowSection(selector: string) {
   });
 }
 
-export default function StorageDesignAssistant() {
+export default function TrayStorageSystemConfigurator() {
   const { designWorkflow, dimensionWorkflow, calculationSection } =
-    useStorageDesignState();
+    useTrayStorageSystemState();
 
-  const currentStage = !designWorkflow.buildType
+  const currentStage = !dimensionWorkflow.designPhaseComplete
     ? 0
-    : !dimensionWorkflow.designPhaseComplete
+    : !calculationSection.calculationState.result
       ? 1
-      : !calculationSection.calculationState.result
-        ? 2
-        : 3;
-
-  function handleBuildTypeSelect(optionId: string) {
-    designWorkflow.onBuildTypeSelect(optionId);
-    scrollToWorkflowSection(
-      optionId === "system"
-        ? '[data-workflow-section="tray-type"]'
-        : '[data-workflow-section="dimensions"]',
-    );
-  }
+      : 2;
 
   function handleTrayTypeSelect(optionId: string) {
     designWorkflow.onTrayTypeSelect(optionId);
@@ -95,7 +84,6 @@ export default function StorageDesignAssistant() {
 
       <DesignWorkflow
         {...designWorkflow}
-        onBuildTypeSelect={handleBuildTypeSelect}
         onTrayTypeSelect={handleTrayTypeSelect}
         onTrayNumberConfirm={handleTrayNumberConfirm}
         onDividerLayoutSelect={handleDividerLayoutSelect}

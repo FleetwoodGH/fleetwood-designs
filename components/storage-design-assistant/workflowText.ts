@@ -12,22 +12,20 @@ export function getDimensionStrategyDescription(
   context: WorkflowTextContext,
 ) {
   switch (target) {
-    case "box-outside":
-      return "You will specify the outside width and depth of the storage box. Its usable inside width and depth will be calculated automatically.";
-
     case "system-outside":
-      return `You will specify the outside width and depth of the complete storage system containing ${context.trayNumber} ${
+      return `You will specify the outside width and depth of the complete Tray Storage System containing ${context.trayNumber} ${
         context.trayNumber === 1 ? "tray" : "trays"
       }. Tray, usable-space and compartment width and depth will be calculated automatically.`;
 
-    case "box-inside":
-      return "You will specify the usable inside width and depth required in the storage box. The outside width and depth will be calculated automatically.";
-
     case "tray-inside":
-      return `You will specify the usable width and depth required inside one tray. The tray and complete ${context.trayNumber}-tray storage-system width and depth will be calculated automatically.`;
+      return `You will specify the usable width and depth required inside one tray. The tray and complete Tray Storage System dimensions for ${context.trayNumber} ${
+        context.trayNumber === 1 ? "tray" : "trays"
+      } will be calculated automatically.`;
 
     case "compartment-inside":
-      return `You will specify the usable width and depth required for one compartment. The complete ${context.rows} × ${context.columns} grid, tray and ${context.trayNumber}-tray storage-system width and depth will be calculated automatically.`;
+      return `You will specify the usable width and depth required for one compartment. The complete ${context.rows} × ${context.columns} grid, tray and Tray Storage System dimensions for ${context.trayNumber} ${
+        context.trayNumber === 1 ? "tray" : "trays"
+      } will be calculated automatically.`;
 
     case "custom-tray-inside":
       return "You will specify the usable width and depth required inside the tray. Custom divider positions will be configured separately.";
@@ -39,14 +37,8 @@ export function getDimensionStrategyDescription(
 
 export function getDimensionTitle(target: DimensionTarget) {
   switch (target) {
-    case "box-outside":
-      return "Specify the outside box width and depth";
-
     case "system-outside":
-      return "Specify the overall system width and depth";
-
-    case "box-inside":
-      return "Specify the usable box width and depth";
+      return "Specify the overall Tray Storage System width and depth";
 
     case "tray-inside":
       return "Specify the usable tray width and depth";
@@ -67,14 +59,10 @@ export function getDimensionDescription(
   context: WorkflowTextContext,
 ) {
   switch (target) {
-    case "box-outside":
-      return "Enter the maximum outside width and depth of the storage box.";
-
     case "system-outside":
-      return `Enter the maximum outside width and depth of the complete ${context.trayNumber}-tray storage system.`;
-
-    case "box-inside":
-      return "Enter the usable width and depth required inside the storage box.";
+      return `Enter the maximum outside width and depth of the complete Tray Storage System with ${context.trayNumber} ${
+        context.trayNumber === 1 ? "tray" : "trays"
+      }.`;
 
     case "tray-inside":
       return "Enter the usable width and depth required inside one tray.";
@@ -92,14 +80,8 @@ export function getDimensionDescription(
 
 export function getWidthLabel(target: DimensionTarget) {
   switch (target) {
-    case "box-outside":
-      return "Outside box width";
-
     case "system-outside":
-      return "Overall system width";
-
-    case "box-inside":
-      return "Usable box width";
+      return "Overall Tray Storage System width";
 
     case "tray-inside":
     case "custom-tray-inside":
@@ -115,14 +97,8 @@ export function getWidthLabel(target: DimensionTarget) {
 
 export function getDepthLabel(target: DimensionTarget) {
   switch (target) {
-    case "box-outside":
-      return "Outside box depth";
-
     case "system-outside":
-      return "Overall system depth";
-
-    case "box-inside":
-      return "Usable box depth";
+      return "Overall Tray Storage System depth";
 
     case "tray-inside":
     case "custom-tray-inside":
@@ -136,19 +112,6 @@ export function getDepthLabel(target: DimensionTarget) {
   }
 }
 
-export function getBoxHeightLabel(target: DimensionTarget) {
-  switch (target) {
-    case "box-outside":
-      return "Outside box height";
-
-    case "box-inside":
-      return "Usable box height";
-
-    default:
-      return "Box height";
-  }
-}
-
 export function getTrayHeightTitle(strategy: DimensionStrategy) {
   return strategy === "outside-led"
     ? "Specify the tray outside height"
@@ -157,8 +120,8 @@ export function getTrayHeightTitle(strategy: DimensionStrategy) {
 
 export function getTrayHeightDescription(strategy: DimensionStrategy) {
   return strategy === "outside-led"
-    ? "Enter the known outside height of each tray. The usable tray height and complete storage-system height will be calculated automatically."
-    : "Enter the usable internal height required in each tray. The tray outside height and complete storage-system height will be calculated automatically.";
+    ? "Enter the known outside height of each tray. The usable tray height and complete Tray Storage System height will be calculated automatically."
+    : "Enter the usable internal height required in each tray. The tray outside height and complete Tray Storage System height will be calculated automatically.";
 }
 
 export function getTrayHeightLabel(strategy: DimensionStrategy) {

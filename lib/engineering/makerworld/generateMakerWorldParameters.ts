@@ -76,7 +76,7 @@ function createGroup(
 
 /**
  * Maps an engineering result to the editable parameters of the current
- * Parametric Storage System model in MakerWorld.
+ * Tray Storage System model in MakerWorld.
  *
  * This adapter copies already-calculated values and applies MakerWorld display
  * precision only. It intentionally contains no engineering geometry formulas.
@@ -86,7 +86,7 @@ export function generateMakerWorldParameters(
 ): MakerWorldParameters {
   if (!calculationResult.tray || !calculationResult.heights) {
     throw new Error(
-      "MakerWorld parameters are available only for a complete storage-system calculation.",
+      "MakerWorld parameters are available only for a complete Tray Storage System calculation.",
     );
   }
 

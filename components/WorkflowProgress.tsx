@@ -1,4 +1,4 @@
-const stages = ["Product", "Configuration", "Dimensions", "Parameters"];
+const stages = ["Configuration", "Dimensions", "Parameters"];
 
 type WorkflowProgressProps = {
   currentStage: number;
