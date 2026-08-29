@@ -7,9 +7,12 @@ import {
 
 import {
   calculateCompartmentDimensions,
+  calculateCustomDividerConfiguration,
   calculateEqualDividerConfiguration,
+  calculateTrayUsableLengthFromSegments,
   calculateTrayUsableDepthFromCompartment,
   calculateTrayUsableWidthFromCompartment,
+  calculateUsableSegmentsFromPercentages,
 } from "@/lib/engineering/calculations/divider";
 
 import { calculateStorageSystemHeights } from "@/lib/engineering/calculations/height";
@@ -84,6 +87,7 @@ export function calculateOutsideLed(
       tray: null,
       compartment: null,
       dividers: null,
+      layoutSegments: null,
       heights: null,
 
       trayNumber: 0,
@@ -113,6 +117,22 @@ export function calculateOutsideLed(
 
   const equalGridSelected =
     input.trayType === "dividers" && input.dividerLayout === "equal";
+  const customGridSelected =
+    input.trayType === "dividers" && input.dividerLayout === "custom";
+
+  const layoutSegments =
+    customGridSelected && input.customLayout
+      ? {
+          usableColumnWidths: calculateUsableSegmentsFromPercentages(
+            trayUsableWidth,
+            input.customLayout.columnPercentages,
+          ),
+          usableRowDepths: calculateUsableSegmentsFromPercentages(
+            trayUsableDepth,
+            input.customLayout.rowPercentages,
+          ),
+        }
+      : null;
 
   const compartment = equalGridSelected
     ? {
@@ -133,7 +153,12 @@ export function calculateOutsideLed(
         input.rows,
         input.columns,
       )
-    : null;
+    : layoutSegments
+      ? calculateCustomDividerConfiguration(
+          layoutSegments.usableColumnWidths,
+          layoutSegments.usableRowDepths,
+        )
+      : null;
 
   return {
     strategy: input.strategy,
@@ -151,11 +176,12 @@ export function calculateOutsideLed(
     tray,
     compartment,
     dividers,
+    layoutSegments,
     heights,
 
     trayNumber: input.trayNumber,
-    rows: equalGridSelected ? input.rows : null,
-    columns: equalGridSelected ? input.columns : null,
+    rows: equalGridSelected || customGridSelected ? input.rows : null,
+    columns: equalGridSelected || customGridSelected ? input.columns : null,
 
     warnings: [],
   };
@@ -201,6 +227,7 @@ export function calculateUsableSpaceLed(
       tray: null,
       compartment: null,
       dividers: null,
+      layoutSegments: null,
       heights: null,
 
       trayNumber: 0,
@@ -217,6 +244,18 @@ export function calculateUsableSpaceLed(
 
   const equalGridSelected =
     input.trayType === "dividers" && input.dividerLayout === "equal";
+  const customGridSelected =
+    input.trayType === "dividers" && input.dividerLayout === "custom";
+
+  const layoutSegments =
+    customGridSelected && input.customLayout
+      ? {
+          usableColumnWidths:
+            input.customLayout.usableColumnWidths.map(roundDimension),
+          usableRowDepths:
+            input.customLayout.usableRowDepths.map(roundDimension),
+        }
+      : null;
 
   let trayUsableWidth: number;
   let trayUsableDepth: number;
@@ -238,6 +277,14 @@ export function calculateUsableSpaceLed(
       depth: roundDimension(input.depth),
       height: heights.usableTrayHeight,
     };
+  } else if (layoutSegments) {
+    trayUsableWidth = calculateTrayUsableLengthFromSegments(
+      layoutSegments.usableColumnWidths,
+    );
+    trayUsableDepth = calculateTrayUsableLengthFromSegments(
+      layoutSegments.usableRowDepths,
+    );
+    compartment = null;
   } else {
     trayUsableWidth = roundDimension(input.width);
     trayUsableDepth = roundDimension(input.depth);
@@ -274,7 +321,12 @@ export function calculateUsableSpaceLed(
         input.rows,
         input.columns,
       )
-    : null;
+    : layoutSegments
+      ? calculateCustomDividerConfiguration(
+          layoutSegments.usableColumnWidths,
+          layoutSegments.usableRowDepths,
+        )
+      : null;
 
   return {
     strategy: input.strategy,
@@ -292,11 +344,12 @@ export function calculateUsableSpaceLed(
     tray,
     compartment,
     dividers,
+    layoutSegments,
     heights,
 
     trayNumber: input.trayNumber,
-    rows: equalGridSelected ? input.rows : null,
-    columns: equalGridSelected ? input.columns : null,
+    rows: equalGridSelected || customGridSelected ? input.rows : null,
+    columns: equalGridSelected || customGridSelected ? input.columns : null,
 
     warnings: [],
   };

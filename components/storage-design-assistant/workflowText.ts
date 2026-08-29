@@ -13,7 +13,7 @@ export function getDimensionStrategyDescription(
 ) {
   switch (target) {
     case "system-outside":
-      return `You will specify the outside width and depth of the complete Tray Storage System containing ${context.trayNumber} ${
+      return `You will specify the outside width, depth and height of the complete Tray Storage System containing ${context.trayNumber} ${
         context.trayNumber === 1 ? "tray" : "trays"
       }. Tray, usable-space and compartment width and depth will be calculated automatically.`;
 
@@ -28,7 +28,7 @@ export function getDimensionStrategyDescription(
       } will be calculated automatically.`;
 
     case "custom-tray-inside":
-      return "You will specify the usable width and depth required inside the tray. Custom divider positions will be configured separately.";
+      return "You will specify the usable width of each column, the usable depth of each row and the required usable tray height.";
 
     default:
       return "";
@@ -60,7 +60,7 @@ export function getDimensionDescription(
 ) {
   switch (target) {
     case "system-outside":
-      return `Enter the maximum outside width and depth of the complete Tray Storage System with ${context.trayNumber} ${
+      return `Enter the maximum outside dimensions of the complete Tray Storage System with ${context.trayNumber} ${
         context.trayNumber === 1 ? "tray" : "trays"
       }.`;
 
@@ -81,14 +81,14 @@ export function getDimensionDescription(
 export function getWidthLabel(target: DimensionTarget) {
   switch (target) {
     case "system-outside":
-      return "Overall Tray Storage System width";
+      return "System width";
 
     case "tray-inside":
     case "custom-tray-inside":
       return "Usable tray width";
 
     case "compartment-inside":
-      return "Compartment width";
+      return "Usable compartment width";
 
     default:
       return "Width";
@@ -98,14 +98,14 @@ export function getWidthLabel(target: DimensionTarget) {
 export function getDepthLabel(target: DimensionTarget) {
   switch (target) {
     case "system-outside":
-      return "Overall Tray Storage System depth";
+      return "System depth";
 
     case "tray-inside":
     case "custom-tray-inside":
       return "Usable tray depth";
 
     case "compartment-inside":
-      return "Compartment depth";
+      return "Usable compartment depth";
 
     default:
       return "Depth";
@@ -126,6 +126,6 @@ export function getTrayHeightDescription(strategy: DimensionStrategy) {
 
 export function getTrayHeightLabel(strategy: DimensionStrategy) {
   return strategy === "outside-led"
-    ? "Tray outside height"
+    ? "System height"
     : "Required usable tray height";
 }

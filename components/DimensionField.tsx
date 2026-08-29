@@ -35,7 +35,10 @@ export default function DimensionField({
 
   return (
     <div className="min-w-0">
-      <label htmlFor={id} className="block text-sm font-medium text-neutral-900">
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-neutral-900"
+      >
         {label}
       </label>
 
@@ -71,11 +74,15 @@ export default function DimensionField({
         <p id={errorId} className="mt-1.5 text-xs leading-4 text-red-600">
           {minimumMessage}
         </p>
-      ) : (
+      ) : disabled ? (
         <p id={helpId} className="mt-1.5 text-xs leading-4 text-neutral-500">
-          {isValid ? "Valid dimension." : disabled ? "Complete the previous dimension first." : minimumMessage}
+          Complete the previous dimension first.
         </p>
-      )}
+      ) : !isValid ? (
+        <p id={helpId} className="mt-1.5 text-xs leading-4 text-neutral-500">
+          {minimumMessage}
+        </p>
+      ) : null}
     </div>
   );
 }

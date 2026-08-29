@@ -38,12 +38,26 @@ export default function NumberSelector({
           <Minus size={20} strokeWidth={2} aria-hidden="true" />
         </button>
 
-        <output
-          className="flex h-11 w-16 shrink-0 items-center justify-center rounded-lg border border-neutral-300 bg-neutral-50 text-xl font-semibold leading-none tabular-nums text-neutral-900"
-          aria-live="polite"
-        >
-          {value}
-        </output>
+        <input
+          type="number"
+          inputMode="numeric"
+          min={min}
+          max={max}
+          step={1}
+          value={value}
+          aria-label={label}
+          onChange={(event) => {
+            const nextValue = Number(event.target.value);
+            if (
+              Number.isInteger(nextValue) &&
+              nextValue >= min &&
+              nextValue <= max
+            ) {
+              onChange(nextValue);
+            }
+          }}
+          className="h-11 w-16 shrink-0 appearance-none rounded-lg border border-neutral-300 bg-neutral-50 text-center text-xl font-semibold leading-none tabular-nums text-neutral-900 outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        />
 
         <button
           type="button"

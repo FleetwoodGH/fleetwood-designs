@@ -33,7 +33,6 @@ type DimensionInputsProps = {
   onWidthChange: (value: string) => void;
   onDepthChange: (value: string) => void;
   onHeightChange: (value: string) => void;
-  onConfirm: () => void;
 };
 
 export default function DimensionInputs({
@@ -61,7 +60,6 @@ export default function DimensionInputs({
   onWidthChange,
   onDepthChange,
   onHeightChange,
-  onConfirm,
 }: DimensionInputsProps) {
   return (
     <ParameterInput title={title} description={description}>
@@ -102,16 +100,6 @@ export default function DimensionInputs({
           onChange={onHeightChange}
         />
       </div>
-
-      {widthIsValid && depthIsValid && heightIsValid && (
-        <button
-          type="button"
-          onClick={onConfirm}
-          className="mt-4 touch-manipulation rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
-        >
-          Continue to MakerWorld Input
-        </button>
-      )}
     </ParameterInput>
   );
 }

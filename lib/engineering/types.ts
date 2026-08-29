@@ -34,7 +34,11 @@ export type OutsideLedStorageSystemCalculationInput =
   StorageSystemCalculationInputBase & {
     strategy: "outside-led";
     heights: {
-      trayOutsideHeight: number;
+      systemOutsideHeight: number;
+    };
+    customLayout?: {
+      columnPercentages: number[];
+      rowPercentages: number[];
     };
   };
 
@@ -44,6 +48,10 @@ export type UsableSpaceLedStorageSystemCalculationInput =
     heights: {
       usableTrayHeight: number;
     };
+    customLayout?: {
+      usableColumnWidths: number[];
+      usableRowDepths: number[];
+    };
   };
 
 export type StorageSystemCalculationInput =
@@ -51,8 +59,7 @@ export type StorageSystemCalculationInput =
   | UsableSpaceLedStorageSystemCalculationInput;
 
 export type CalculationInput =
-  | StandaloneBoxCalculationInput
-  | StorageSystemCalculationInput;
+  StandaloneBoxCalculationInput | StorageSystemCalculationInput;
 
 export type BoxDimensions = {
   outsideWidth: number;
@@ -81,6 +88,10 @@ export type CompartmentDimensions = {
 };
 
 export type DividerConfiguration = {
+  /** Absolute divider centre positions in millimetres. */
+  verticalCentrePositions: number[];
+  horizontalCentrePositions: number[];
+
   /**
    * Normalised divider centre positions between 0 and 1.
    *
@@ -110,6 +121,11 @@ export type DividerConfiguration = {
   horizontalToggles: number[];
 };
 
+export type LayoutSegmentDimensions = {
+  usableColumnWidths: number[];
+  usableRowDepths: number[];
+};
+
 export type StorageSystemHeightResult = {
   trayOutsideHeight: number;
   usableTrayHeight: number;
@@ -125,6 +141,7 @@ export type CalculationResult = {
   tray: TrayDimensions | null;
   compartment: CompartmentDimensions | null;
   dividers: DividerConfiguration | null;
+  layoutSegments: LayoutSegmentDimensions | null;
   heights: StorageSystemHeightResult | null;
 
   trayNumber: number;

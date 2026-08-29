@@ -28,8 +28,10 @@ type DesignWorkflowProps = {
 
   trayMinimum: number;
   trayMaximum: number;
-  gridMinimum: number;
-  gridMaximum: number;
+  rowMinimum: number;
+  rowMaximum: number;
+  columnMinimum: number;
+  columnMaximum: number;
 
   onTrayTypeSelect: (optionId: string) => void;
   onTrayNumberChange: (value: number) => void;
@@ -52,8 +54,10 @@ export default function DesignWorkflow({
   customGridSelected,
   trayMinimum,
   trayMaximum,
-  gridMinimum,
-  gridMaximum,
+  rowMinimum,
+  rowMaximum,
+  columnMinimum,
+  columnMaximum,
   onTrayTypeSelect,
   onTrayNumberChange,
   onTrayNumberConfirm,
@@ -65,9 +69,7 @@ export default function DesignWorkflow({
   return (
     <>
       <div
-        className={`scroll-mt-20 ${
-          trayType ? "" : "min-h-[calc(100vh-5rem)]"
-        }`}
+        className={`scroll-mt-20 ${trayType ? "" : "min-h-[calc(100vh-5rem)]"}`}
         data-workflow-section="tray-type"
       >
         <DecisionStep
@@ -118,7 +120,7 @@ export default function DesignWorkflow({
         </p>
       )}
 
-      {equalGridSelected && trayNumberConfirmed && (
+      {(equalGridSelected || customGridSelected) && trayNumberConfirmed && (
         <div
           className={`scroll-mt-20 ${
             gridConfirmed ? "" : "min-h-[calc(100vh-5rem)]"
@@ -128,9 +130,12 @@ export default function DesignWorkflow({
           <EqualGridInput
             rows={rows}
             columns={columns}
-            min={gridMinimum}
-            max={gridMaximum}
+            rowMin={rowMinimum}
+            rowMax={rowMaximum}
+            columnMin={columnMinimum}
+            columnMax={columnMaximum}
             confirmed={gridConfirmed}
+            custom={customGridSelected}
             onRowsChange={onRowsChange}
             onColumnsChange={onColumnsChange}
             onConfirm={onGridConfirm}
@@ -138,35 +143,15 @@ export default function DesignWorkflow({
         </div>
       )}
 
-      {customGridSelected && trayNumberConfirmed && (
-        <div
-          className="scroll-mt-20"
-          data-workflow-section="custom-layout-configuration"
-        >
-          <h2 className="text-xl font-semibold tracking-tight text-neutral-900">
-            Custom layout configuration
-          </h2>
-
-          <p className="mt-1 text-xs leading-4 text-neutral-500">
-            Divider positions are handled separately.
+      {gridConfirmed &&
+        (equalGridSelected || customGridSelected) &&
+        trayNumberConfirmed && (
+          <p className="text-xs leading-4 text-neutral-500">
+            {customGridSelected ? "Custom layout" : "Equal grid"} configured:{" "}
+            {rows} rows × {columns} columns ({rows * columns} compartments per
+            tray).
           </p>
-
-          <p
-            className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700"
-            role="status"
-          >
-            <span aria-hidden="true">✓</span>
-            Custom layout selected
-          </p>
-        </div>
-      )}
-
-      {gridConfirmed && equalGridSelected && trayNumberConfirmed && (
-        <p className="text-xs leading-4 text-neutral-500">
-          Equal grid configured: {rows} rows × {columns} columns ({rows * columns}{" "}
-          compartments per tray).
-        </p>
-      )}
+        )}
     </>
   );
 }

@@ -3,21 +3,21 @@ import type { DecisionOption } from "@/components/storage-design-assistant/types
 export const trayOptions: DecisionOption[] = [
   {
     id: "open",
-    title: "Open Trays",
+    title: "Open Tray",
     description: "Stackable trays for easy access.",
-    icon: "▱",
+    icon: "open-tray",
   },
   {
     id: "lid",
-    title: "Trays with Lids",
+    title: "Tray with Lid",
     description: "Close and use each tray separately.",
-    icon: "▰",
+    icon: "lidded-tray",
   },
   {
     id: "dividers",
-    title: "Trays with Dividers",
-    description: "Separate smaller items into compartments.",
-    icon: "▦",
+    title: "Tray with Lid & Compartments",
+    description: "Organise smaller items in covered compartments.",
+    icon: "compartment-tray",
   },
 ];
 
@@ -26,13 +26,13 @@ export const dividerLayoutOptions: DecisionOption[] = [
     id: "equal",
     title: "Equal Grid",
     description: "Create evenly sized compartments.",
-    icon: "⬚",
+    icon: "equal-grid",
   },
   {
     id: "custom",
     title: "Custom Layout",
     description: "Create compartments of different sizes.",
-    icon: "◫",
+    icon: "custom-grid",
   },
 ];
 
@@ -41,12 +41,12 @@ export const dimensionStrategyOptions: DecisionOption[] = [
     id: "outside-led",
     title: "Overall Outside Size",
     description: "Start with the maximum outside dimensions.",
-    icon: "⬜",
+    icon: "outside-size",
   },
   {
     id: "usable-space-led",
     title: "Required Usable Space",
     description: "Start with the usable space your items need.",
-    icon: "◻️",
+    icon: "usable-space",
   },
 ];

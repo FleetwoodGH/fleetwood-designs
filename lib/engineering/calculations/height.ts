@@ -34,6 +34,29 @@ export function calculateClosedOutsideHeight(
   return roundDimension(baseHeight + lidHeight);
 }
 
+export function calculateTrayOutsideHeightFromSystemHeight(
+  systemOutsideHeight: number,
+  trayNumber: number,
+) {
+  return roundDimension(
+    (systemOutsideHeight -
+      ENGINEERING_CONSTANTS.box.lidHeight -
+      ENGINEERING_CONSTANTS.base.topAllowance +
+      (trayNumber - 1) * ENGINEERING_CONSTANTS.tray.verticalOverlap) /
+      trayNumber,
+  );
+}
+
+export function calculateMinimumSystemOutsideHeight(trayNumber: number) {
+  return calculateClosedOutsideHeight(
+    calculateBaseHeight(
+      ENGINEERING_LIMITS.design.trayOutsideHeight.minimum,
+      trayNumber,
+    ),
+    ENGINEERING_CONSTANTS.box.lidHeight,
+  );
+}
+
 export function calculateUsableTrayHeight(
   trayOutsideHeight: number,
   trayType: TrayType,
@@ -76,9 +99,7 @@ export function calculateMinimumUsableTrayHeight(trayType: TrayType) {
   );
 }
 
-export function calculateTrayOutsideHeightValidityBoundary(
-  trayType: TrayType,
-) {
+export function calculateTrayOutsideHeightValidityBoundary(trayType: TrayType) {
   return roundDimension(
     ENGINEERING_CONSTANTS.tray.bottomThickness +
       getTrayHeightContribution(trayType),
@@ -90,7 +111,10 @@ export function calculateStorageSystemHeights(
 ): StorageSystemHeightResult {
   const trayOutsideHeight =
     input.strategy === "outside-led"
-      ? roundDimension(input.heights.trayOutsideHeight)
+      ? calculateTrayOutsideHeightFromSystemHeight(
+          input.heights.systemOutsideHeight,
+          input.trayNumber,
+        )
       : calculateTrayOutsideHeight(
           input.heights.usableTrayHeight,
           input.trayType,
@@ -102,16 +126,27 @@ export function calculateStorageSystemHeights(
       : roundDimension(input.heights.usableTrayHeight);
 
   const lidHeight = ENGINEERING_CONSTANTS.box.lidHeight;
-  const baseHeight = calculateBaseHeight(
-    trayOutsideHeight,
-    input.trayNumber,
-  );
+  const baseHeight = calculateBaseHeight(trayOutsideHeight, input.trayNumber);
 
-  return {
+  const result = {
     trayOutsideHeight,
     usableTrayHeight,
     lidHeight,
     baseHeight,
     closedOutsideHeight: calculateClosedOutsideHeight(baseHeight, lidHeight),
   };
+
+  if (
+    input.strategy === "outside-led" &&
+    Math.abs(
+      result.closedOutsideHeight -
+        roundDimension(input.heights.systemOutsideHeight),
+    ) > 0.0011
+  ) {
+    throw new Error(
+      "System outside height cannot be represented consistently by the tray height model.",
+    );
+  }
+
+  return result;
 }

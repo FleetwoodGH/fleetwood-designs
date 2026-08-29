@@ -3,9 +3,12 @@ import NumberSelector from "@/components/NumberSelector";
 type EqualGridInputProps = {
   rows: number;
   columns: number;
-  min: number;
-  max: number;
+  rowMin: number;
+  rowMax: number;
+  columnMin: number;
+  columnMax: number;
   confirmed: boolean;
+  custom?: boolean;
   onRowsChange: (value: number) => void;
   onColumnsChange: (value: number) => void;
   onConfirm: () => void;
@@ -14,9 +17,12 @@ type EqualGridInputProps = {
 export default function EqualGridInput({
   rows,
   columns,
-  min,
-  max,
+  rowMin,
+  rowMax,
+  columnMin,
+  columnMax,
   confirmed,
+  custom = false,
   onRowsChange,
   onColumnsChange,
   onConfirm,
@@ -24,27 +30,27 @@ export default function EqualGridInput({
   return (
     <section>
       <h2 className="text-xl font-semibold tracking-tight text-neutral-900">
-        Configure the equal grid
+        {custom ? "Configure the custom layout" : "Configure the equal grid"}
       </h2>
 
       <p className="mt-1 max-w-2xl text-xs leading-4 text-neutral-500">
-        Choose the number of equally sized rows and columns.
+        Choose the number of rows and columns.
       </p>
 
       <div className="mt-4 grid gap-5 sm:grid-cols-2">
         <NumberSelector
           label="Rows"
           value={rows}
-          min={min}
-          max={max}
+          min={rowMin}
+          max={rowMax}
           onChange={onRowsChange}
         />
 
         <NumberSelector
           label="Columns"
           value={columns}
-          min={min}
-          max={max}
+          min={columnMin}
+          max={columnMax}
           onChange={onColumnsChange}
         />
       </div>
@@ -56,7 +62,7 @@ export default function EqualGridInput({
             role="status"
           >
             <span aria-hidden="true">✓</span>
-            Divider configuration confirmed
+            Layout configuration confirmed
           </p>
         ) : (
           <button
@@ -69,7 +75,8 @@ export default function EqualGridInput({
         )}
 
         <p className="text-sm text-neutral-500">
-          {rows * columns} compartments · Maximum {max} × {max}.
+          {rows * columns} compartments · Maximum {rowMax} rows × {columnMax}{" "}
+          columns.
         </p>
       </div>
     </section>

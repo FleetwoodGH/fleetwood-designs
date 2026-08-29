@@ -55,12 +55,11 @@ export const ENGINEERING_LIMITS = {
     trayOutsideHeight: {
       minimum: MINIMUM_FUSION_TRAY_OUTSIDE_HEIGHT,
     },
-
   },
 
   grid: {
     minimumRows: 1,
-    maximumRows: 6,
+    maximumRows: 4,
     minimumColumns: 1,
     maximumColumns: 6,
   },

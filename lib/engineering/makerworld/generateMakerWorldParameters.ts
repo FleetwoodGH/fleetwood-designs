@@ -90,13 +90,29 @@ export function generateMakerWorldParameters(
     );
   }
 
-  const verticalPositions =
-    calculationResult.dividers?.verticalPositions ?? [];
+  const verticalPositions = calculationResult.dividers?.verticalPositions ?? [];
   const horizontalPositions =
     calculationResult.dividers?.horizontalPositions ?? [];
   const verticalToggles = calculationResult.dividers?.verticalToggles ?? [];
-  const horizontalToggles =
-    calculationResult.dividers?.horizontalToggles ?? [];
+  const horizontalToggles = calculationResult.dividers?.horizontalToggles ?? [];
+
+  if (
+    verticalPositions.length > VERTICAL_DIVIDER_PARAMETER_COUNT ||
+    verticalToggles.slice(VERTICAL_DIVIDER_PARAMETER_COUNT).some(Boolean)
+  ) {
+    throw new Error(
+      `The current MakerWorld model supports at most ${VERTICAL_DIVIDER_PARAMETER_COUNT} vertical dividers.`,
+    );
+  }
+
+  if (
+    horizontalPositions.length > HORIZONTAL_DIVIDER_PARAMETER_COUNT ||
+    horizontalToggles.slice(HORIZONTAL_DIVIDER_PARAMETER_COUNT).some(Boolean)
+  ) {
+    throw new Error(
+      `The current MakerWorld model supports at most ${HORIZONTAL_DIVIDER_PARAMETER_COUNT} horizontal dividers.`,
+    );
+  }
 
   return {
     groups: [
@@ -119,10 +135,7 @@ export function generateMakerWorldParameters(
           "trayHeight",
           calculationResult.heights.trayOutsideHeight,
         ),
-        createIntegerParameter(
-          "trayNumber",
-          calculationResult.trayNumber,
-        ),
+        createIntegerParameter("trayNumber", calculationResult.trayNumber),
       ]),
       createGroup(
         "vertical-dividers",

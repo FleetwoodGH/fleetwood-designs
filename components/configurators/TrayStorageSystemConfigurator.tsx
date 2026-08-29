@@ -63,19 +63,13 @@ export default function TrayStorageSystemConfigurator() {
     scrollToWorkflowSection(
       optionId === "equal"
         ? '[data-workflow-section="divider-configuration"]'
-        : '[data-workflow-section="custom-layout-configuration"]',
+        : '[data-workflow-section="divider-configuration"]',
     );
   }
 
   function handleGridConfirm() {
     designWorkflow.onGridConfirm();
     scrollToWorkflowSection('[data-workflow-section="dimensions"]');
-  }
-
-  function handleDimensionConfirm() {
-    if (calculationSection.calculationState.result) {
-      scrollToWorkflowSection('[data-workflow-section="makerworld-input"]');
-    }
   }
 
   return (
@@ -93,7 +87,6 @@ export default function TrayStorageSystemConfigurator() {
       <DimensionWorkflow
         {...dimensionWorkflow}
         onDimensionStrategySelect={handleDimensionStrategySelect}
-        onDimensionConfirm={handleDimensionConfirm}
       />
 
       <CalculationSection {...calculationSection} />

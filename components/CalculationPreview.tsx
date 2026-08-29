@@ -8,15 +8,25 @@ type DimensionRowProps = {
   label: string;
   value: number | null;
   unit?: string;
+  decimalPlaces?: number;
 };
 
-function formatDimension(value: number) {
+function formatDimension(value: number, decimalPlaces?: number) {
+  if (decimalPlaces !== undefined) {
+    return value.toFixed(decimalPlaces);
+  }
+
   return Number.isInteger(value)
     ? value.toString()
     : value.toFixed(3).replace(/\.?0+$/, "");
 }
 
-function DimensionRow({ label, value, unit = "mm" }: DimensionRowProps) {
+function DimensionRow({
+  label,
+  value,
+  unit = "mm",
+  decimalPlaces,
+}: DimensionRowProps) {
   return (
     <div className="flex items-start justify-between gap-6 border-b border-neutral-200 py-3 last:border-b-0">
       <dt className="text-sm text-neutral-600">{label}</dt>
@@ -28,7 +38,7 @@ function DimensionRow({ label, value, unit = "mm" }: DimensionRowProps) {
           </span>
         ) : (
           <>
-            {formatDimension(value)} {unit}
+            {formatDimension(value, decimalPlaces)} {unit}
           </>
         )}
       </dd>
@@ -60,6 +70,7 @@ export default function CalculationPreview({
     result.compartment !== null &&
     result.rows !== null &&
     result.columns !== null;
+  const hasCustomLayout = result.layoutSegments !== null;
 
   return (
     <section className="space-y-4">
@@ -125,7 +136,7 @@ export default function CalculationPreview({
         )}
 
         {result.heights && (
-        <ResultSection title="Tray Storage System Heights">
+          <ResultSection title="Tray Storage System Heights">
             <DimensionRow
               label="Tray outside height"
               value={result.heights.trayOutsideHeight}
@@ -136,10 +147,7 @@ export default function CalculationPreview({
               value={result.heights.usableTrayHeight}
             />
 
-            <DimensionRow
-              label="Lid height"
-              value={result.heights.lidHeight}
-            />
+            <DimensionRow label="Lid height" value={result.heights.lidHeight} />
 
             <DimensionRow
               label="Base height"
@@ -162,12 +170,37 @@ export default function CalculationPreview({
             <DimensionRow
               label="Compartment width"
               value={result.compartment.width}
+              decimalPlaces={1}
             />
 
             <DimensionRow
               label="Compartment depth"
               value={result.compartment.depth}
+              decimalPlaces={1}
             />
+          </ResultSection>
+        )}
+
+        {hasCustomLayout && result.layoutSegments && (
+          <ResultSection title="Custom Layout">
+            <DimensionRow label="Rows" value={result.rows} unit="" />
+            <DimensionRow label="Columns" value={result.columns} unit="" />
+            {result.layoutSegments.usableColumnWidths.map((width, index) => (
+              <DimensionRow
+                key={`column-${index}`}
+                label={`Usable column ${index + 1} width`}
+                value={width}
+                decimalPlaces={1}
+              />
+            ))}
+            {result.layoutSegments.usableRowDepths.map((depth, index) => (
+              <DimensionRow
+                key={`row-${index}`}
+                label={`Usable row ${index + 1} depth`}
+                value={depth}
+                decimalPlaces={1}
+              />
+            ))}
           </ResultSection>
         )}
 

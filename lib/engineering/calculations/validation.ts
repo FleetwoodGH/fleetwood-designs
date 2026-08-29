@@ -1,5 +1,9 @@
 import { ENGINEERING_LIMITS } from "@/lib/engineering/engineeringConstants";
-import { calculateTrayOutsideHeightValidityBoundary } from "@/lib/engineering/calculations/height";
+import {
+  calculateMinimumSystemOutsideHeight,
+  calculateTrayOutsideHeightFromSystemHeight,
+  calculateTrayOutsideHeightValidityBoundary,
+} from "@/lib/engineering/calculations/height";
 
 import type { CalculationInput } from "@/lib/engineering/types";
 
@@ -37,10 +41,7 @@ export function validateBoxOutsideDesignLimits(
 export function validateTrayOutsideHeightDesignLimit(
   trayOutsideHeight: number,
 ) {
-  if (
-    trayOutsideHeight <
-    ENGINEERING_LIMITS.design.trayOutsideHeight.minimum
-  ) {
+  if (trayOutsideHeight < ENGINEERING_LIMITS.design.trayOutsideHeight.minimum) {
     throw new Error(
       `Tray outside height must be at least ${ENGINEERING_LIMITS.design.trayOutsideHeight.minimum} mm ` +
         "to remain within the supported Fusion design limits.",
@@ -63,22 +64,35 @@ export function validateCalculationInput(input: CalculationInput) {
 
   if (input.strategy === "outside-led") {
     requirePositiveValue(
-      input.heights.trayOutsideHeight,
-      "Tray outside height",
+      input.heights.systemOutsideHeight,
+      "System outside height",
     );
 
-    const minimumOutsideHeight =
-      calculateTrayOutsideHeightValidityBoundary(input.trayType);
+    const minimumSystemHeight = calculateMinimumSystemOutsideHeight(
+      input.trayNumber,
+    );
+    if (input.heights.systemOutsideHeight < minimumSystemHeight) {
+      throw new Error(
+        `System outside height must be at least ${minimumSystemHeight} mm for ${input.trayNumber} trays.`,
+      );
+    }
 
-    if (input.heights.trayOutsideHeight <= minimumOutsideHeight) {
+    const trayOutsideHeight = calculateTrayOutsideHeightFromSystemHeight(
+      input.heights.systemOutsideHeight,
+      input.trayNumber,
+    );
+
+    const minimumOutsideHeight = calculateTrayOutsideHeightValidityBoundary(
+      input.trayType,
+    );
+
+    if (trayOutsideHeight <= minimumOutsideHeight) {
       throw new Error(
         `Tray outside height must be greater than ${minimumOutsideHeight} mm.`,
       );
     }
 
-    validateTrayOutsideHeightDesignLimit(
-      input.heights.trayOutsideHeight,
-    );
+    validateTrayOutsideHeightDesignLimit(trayOutsideHeight);
   } else {
     requirePositiveValue(input.heights.usableTrayHeight, "Usable tray height");
   }
@@ -118,4 +132,55 @@ export function validateCalculationInput(input: CalculationInput) {
   if (input.trayType === "dividers" && !input.dividerLayout) {
     throw new Error("Divider layout is required for trays with dividers.");
   }
+
+  if (input.trayType === "dividers" && input.dividerLayout === "custom") {
+    if (!input.customLayout) {
+      throw new Error("Custom layout dimensions are required.");
+    }
+
+    if (input.strategy === "outside-led") {
+      validateDistribution(
+        input.customLayout.columnPercentages,
+        input.columns,
+        "Column",
+      );
+      validateDistribution(
+        input.customLayout.rowPercentages,
+        input.rows,
+        "Row",
+      );
+    } else {
+      validatePositiveSegments(
+        input.customLayout.usableColumnWidths,
+        input.columns,
+        "Column width",
+      );
+      validatePositiveSegments(
+        input.customLayout.usableRowDepths,
+        input.rows,
+        "Row depth",
+      );
+    }
+  }
+}
+
+function validateDistribution(values: number[], count: number, name: string) {
+  validatePositiveSegments(values, count, `${name} percentage`);
+  const total = Number(
+    values.reduce((sum, value) => sum + value, 0).toFixed(3),
+  );
+  if (total !== 100) {
+    throw new Error(`${name} percentages must total 100%.`);
+  }
+}
+
+function validatePositiveSegments(
+  values: number[],
+  count: number,
+  name: string,
+) {
+  if (values.length !== count) {
+    throw new Error(`${name} must contain ${count} values.`);
+  }
+  values.forEach((value) => requirePositiveValue(value, name));
 }
