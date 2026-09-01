@@ -59,7 +59,7 @@ export const ENGINEERING_LIMITS = {
 
   grid: {
     minimumRows: 1,
-    maximumRows: 4,
+    maximumRows: 6,
     minimumColumns: 1,
     maximumColumns: 6,
   },

@@ -142,7 +142,7 @@ export function runEngineeringValidation() {
     ...outsideBase,
     trayType: "dividers",
     dividerLayout: "equal",
-    rows: 4,
+    rows: 6,
     columns: 6,
   });
   assert(
@@ -150,14 +150,46 @@ export function runEngineeringValidation() {
     "Maximum grid must contain five vertical dividers.",
   );
   assert(
-    maximumGrid.dividers?.horizontalPositions.length === 3,
-    "Maximum grid must contain three horizontal dividers.",
+    maximumGrid.dividers?.horizontalPositions.length === 5,
+    "Maximum grid must contain five horizontal dividers.",
+  );
+  assert(
+    JSON.stringify(maximumGrid.dividers.horizontalCentrePositions) ===
+      JSON.stringify([13.517, 28.033, 42.55, 57.067, 71.583]),
+    "Maximum grid horizontal divider centres changed unexpectedly.",
+  );
+  assert(
+    JSON.stringify(maximumGrid.dividers.horizontalPositions) ===
+      JSON.stringify([0.158833, 0.329416, 0.5, 0.670584, 0.841167]),
+    "Maximum grid horizontal divider ratios changed unexpectedly.",
+  );
+  assert(
+    JSON.stringify(maximumGrid.dividers.horizontalToggles) ===
+      JSON.stringify([1, 1, 1, 1, 1]),
+    "Maximum grid must activate all five horizontal dividers.",
   );
   const maximumMakerWorld = generateMakerWorldParameters(maximumGrid);
   assert(
-    maximumMakerWorld.groups.flatMap((group) => group.parameters).length === 21,
-    "MakerWorld output must contain all 21 parameters.",
+    maximumMakerWorld.groups.flatMap((group) => group.parameters).length === 25,
+    "MakerWorld output must contain all 25 parameters.",
   );
+  const maximumParameterByName = new Map(
+    maximumMakerWorld.groups
+      .flatMap((group) => group.parameters)
+      .map((parameter) => [parameter.name, parameter.value]),
+  );
+  maximumGrid.dividers.horizontalPositions.forEach((position, index) => {
+    assertClose(
+      maximumParameterByName.get(`dividerH${index + 1}`) ?? -1,
+      Number(position.toFixed(3)),
+      `Maximum-grid MakerWorld dividerH${index + 1}`,
+    );
+    assertClose(
+      maximumParameterByName.get(`toggleH${index + 1}`) ?? -1,
+      1,
+      `Maximum-grid MakerWorld toggleH${index + 1}`,
+    );
+  });
 
   // Asymmetric custom layout, outside-led. Final percentages represent calculated remainders.
   const customOutside = calculateOutsideLed({
@@ -192,8 +224,44 @@ export function runEngineeringValidation() {
   );
   assert(
     JSON.stringify(customOutside.dividers.horizontalToggles) ===
-      JSON.stringify([1, 0, 0]),
+      JSON.stringify([1, 0, 0, 0, 0]),
     "Outside-led custom horizontal toggles changed unexpectedly.",
+  );
+
+  const sixRowCustomOutside = calculateOutsideLed({
+    ...outsideBase,
+    trayType: "dividers",
+    dividerLayout: "custom",
+    rows: 6,
+    columns: 3,
+    customLayout: {
+      columnPercentages: [25, 35, 40],
+      rowPercentages: [10, 15, 20, 12, 18, 25],
+    },
+  });
+  assert(
+    sixRowCustomOutside.layoutSegments && sixRowCustomOutside.dividers,
+    "Six-row outside-led custom layout must produce a complete result.",
+  );
+  assert(
+    JSON.stringify(sixRowCustomOutside.layoutSegments.usableRowDepths) ===
+      JSON.stringify([7.51, 11.265, 15.02, 9.012, 13.518, 18.775]),
+    "Six-row outside-led row depths changed unexpectedly.",
+  );
+  assert(
+    JSON.stringify(sixRowCustomOutside.dividers.horizontalCentrePositions) ===
+      JSON.stringify([8.51, 21.775, 38.795, 49.807, 65.325]),
+    "Six-row outside-led horizontal centres changed unexpectedly.",
+  );
+  assert(
+    JSON.stringify(sixRowCustomOutside.dividers.horizontalPositions) ===
+      JSON.stringify([0.1, 0.255875, 0.455875, 0.585276, 0.767626]),
+    "Six-row outside-led horizontal ratios changed unexpectedly.",
+  );
+  assert(
+    JSON.stringify(sixRowCustomOutside.dividers.horizontalToggles) ===
+      JSON.stringify([1, 1, 1, 1, 1]),
+    "Six-row outside-led custom layout must activate five dividers.",
   );
 
   // Asymmetric custom layout, usable-led.
@@ -226,6 +294,50 @@ export function runEngineeringValidation() {
     "Usable-led custom toggles changed unexpectedly.",
   );
 
+  const sixRowCustomUsable = calculateUsableSpaceLed({
+    ...usableBase,
+    trayType: "dividers",
+    dividerLayout: "custom",
+    rows: 6,
+    columns: 3,
+    heights: { usableTrayHeight: 18.5 },
+    customLayout: {
+      usableColumnWidths: [30, 45, 60],
+      usableRowDepths: [10, 15, 20, 12, 18, 25],
+    },
+  });
+  assert(
+    sixRowCustomUsable.layoutSegments &&
+      sixRowCustomUsable.dividers &&
+      sixRowCustomUsable.tray,
+    "Six-row usable-led custom layout must produce a complete result.",
+  );
+  assertClose(
+    sixRowCustomUsable.tray.usableDepth,
+    110,
+    "Six-row custom usable tray depth",
+  );
+  assertClose(
+    sixRowCustomUsable.box.outsideDepth,
+    124.9,
+    "Six-row custom system outside depth",
+  );
+  assert(
+    JSON.stringify(sixRowCustomUsable.dividers.horizontalCentrePositions) ===
+      JSON.stringify([11, 28, 50, 64, 84]),
+    "Six-row usable-led horizontal centres changed unexpectedly.",
+  );
+  assert(
+    JSON.stringify(sixRowCustomUsable.dividers.horizontalPositions) ===
+      JSON.stringify([0.1, 0.254545, 0.454545, 0.581818, 0.763636]),
+    "Six-row usable-led horizontal ratios changed unexpectedly.",
+  );
+  assert(
+    JSON.stringify(sixRowCustomUsable.dividers.horizontalToggles) ===
+      JSON.stringify([1, 1, 1, 1, 1]),
+    "Six-row usable-led custom layout must activate five dividers.",
+  );
+
   // Validation and no-silent-truncation safeguards.
   expectRejected(
     () =>
@@ -241,9 +353,9 @@ export function runEngineeringValidation() {
         ...outsideBase,
         trayType: "dividers",
         dividerLayout: "equal",
-        rows: 5,
+        rows: 7,
       }),
-    "Rows must be between 1 and 4",
+    "Rows must be between 1 and 6",
   );
   expectRejected(
     () =>
@@ -292,4 +404,40 @@ export function runEngineeringValidation() {
     customOutside.dividers.verticalToggles[1],
     "MakerWorld toggleV2",
   );
+  for (const index of [1, 2, 3, 4]) {
+    assertClose(
+      parameterByName.get(`dividerH${index + 1}`) ?? -1,
+      0,
+      `Unused MakerWorld dividerH${index + 1}`,
+    );
+    assertClose(
+      parameterByName.get(`toggleH${index + 1}`) ?? -1,
+      0,
+      `Unused MakerWorld toggleH${index + 1}`,
+    );
+  }
+
+  for (const [name, result] of [
+    ["outside-led", sixRowCustomOutside],
+    ["usable-led", sixRowCustomUsable],
+  ] as const) {
+    assert(result.dividers, `Six-row ${name} result must contain dividers.`);
+    const mappedParameters = new Map(
+      generateMakerWorldParameters(result).groups
+        .flatMap((group) => group.parameters)
+        .map((parameter) => [parameter.name, parameter.value]),
+    );
+    result.dividers.horizontalPositions.forEach((position, index) => {
+      assertClose(
+        mappedParameters.get(`dividerH${index + 1}`) ?? -1,
+        Number(position.toFixed(3)),
+        `Six-row ${name} MakerWorld dividerH${index + 1}`,
+      );
+      assertClose(
+        mappedParameters.get(`toggleH${index + 1}`) ?? -1,
+        1,
+        `Six-row ${name} MakerWorld toggleH${index + 1}`,
+      );
+    });
+  }
 }

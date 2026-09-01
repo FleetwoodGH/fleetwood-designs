@@ -29,6 +29,10 @@ const MAKERWORLD_INPUT_ORDER = [
   "toggleH1",
   "toggleH2",
   "toggleH3",
+  "dividerH4",
+  "dividerH5",
+  "toggleH4",
+  "toggleH5",
 ] as const;
 
 const TRAY_STORAGE_SYSTEM_MAKERWORLD_URL =
@@ -123,7 +127,7 @@ export default function MakerWorldParameterPreview({
           <ParameterHeadings />
         </div>
 
-        <dl className="grid md:grid-flow-col md:grid-cols-2 md:grid-rows-[repeat(11,minmax(0,auto))] md:gap-x-2">
+        <dl className="grid md:grid-flow-col md:grid-cols-2 md:grid-rows-[repeat(13,minmax(0,auto))] md:gap-x-2">
           {orderedParameters.map((parameter) => (
             <ParameterRow key={parameter.name} parameter={parameter} />
           ))}

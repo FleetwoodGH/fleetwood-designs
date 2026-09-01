@@ -1,4 +1,5 @@
 import type { CalculationResult } from "@/lib/engineering/types";
+import { ENGINEERING_LIMITS } from "@/lib/engineering/engineeringConstants";
 
 import type {
   MakerWorldParameter,
@@ -6,8 +7,10 @@ import type {
   MakerWorldParameters,
 } from "./types";
 
-const VERTICAL_DIVIDER_PARAMETER_COUNT = 5;
-const HORIZONTAL_DIVIDER_PARAMETER_COUNT = 3;
+const VERTICAL_DIVIDER_PARAMETER_COUNT =
+  ENGINEERING_LIMITS.grid.maximumColumns - 1;
+const HORIZONTAL_DIVIDER_PARAMETER_COUNT =
+  ENGINEERING_LIMITS.grid.maximumRows - 1;
 
 function roundValue(value: number, decimals: number) {
   return Number(value.toFixed(decimals));
