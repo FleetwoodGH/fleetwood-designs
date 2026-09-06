@@ -1,5 +1,7 @@
 import { permanentRedirect } from "next/navigation";
 
+import { PRODUCTS } from "@/lib/products";
+
 export default function ParametricStorageSystemPage() {
-  permanentRedirect("/configure/tray-storage-system");
+  permanentRedirect(PRODUCTS.trayStorageSystem.configuratorPath);
 }

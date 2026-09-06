@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { PRODUCTS } from "@/lib/products";
+
 export default function Home() {
   return (
     <main className="min-h-screen px-6 py-16">
@@ -22,10 +24,10 @@ export default function Home() {
         </h2>
 
         <Link
-          href="/configure/tray-storage-system"
+          href={PRODUCTS.trayStorageSystem.configuratorPath}
           className="inline-flex rounded-lg border border-neutral-300 px-5 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
         >
-          Configure the Tray Storage System →
+          Configure the {PRODUCTS.trayStorageSystem.name} →
         </Link>
       </section>
     </main>

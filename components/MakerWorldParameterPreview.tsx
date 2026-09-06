@@ -2,6 +2,7 @@ import type {
   MakerWorldParameter,
   MakerWorldParameters,
 } from "@/lib/engineering/makerworld";
+import { PRODUCTS } from "@/lib/products";
 
 type MakerWorldParameterPreviewProps = {
   parameters: MakerWorldParameters;
@@ -34,10 +35,6 @@ const MAKERWORLD_INPUT_ORDER = [
   "toggleH4",
   "toggleH5",
 ] as const;
-
-const TRAY_STORAGE_SYSTEM_MAKERWORLD_URL =
-  process.env.NEXT_PUBLIC_TRAY_STORAGE_SYSTEM_MAKERWORLD_URL ??
-  "https://makerworld.com/en/search/models?keyword=Tray%20Storage%20System";
 
 function getOrderedParameters(parameters: MakerWorldParameters) {
   const parametersByName = new Map(
@@ -102,7 +99,7 @@ export default function MakerWorldParameterPreview({
 
         <div className="mt-3">
           <a
-            href={TRAY_STORAGE_SYSTEM_MAKERWORLD_URL}
+            href={PRODUCTS.trayStorageSystem.makerWorldUrl}
             target="_blank"
             rel="noreferrer"
             className="inline-flex rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 transition hover:border-neutral-400 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
