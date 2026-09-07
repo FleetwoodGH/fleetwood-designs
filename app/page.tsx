@@ -37,6 +37,13 @@ export default function Home() {
           >
             Configure the {PRODUCTS.storageBoxLidBase.name} →
           </Link>
+
+          <Link
+            href={PRODUCTS.printInPlaceStorageBox.configuratorPath}
+            className="inline-flex rounded-lg border border-neutral-300 px-5 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
+          >
+            Configure the {PRODUCTS.printInPlaceStorageBox.name} →
+          </Link>
         </div>
       </section>
     </main>

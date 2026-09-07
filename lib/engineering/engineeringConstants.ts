@@ -41,6 +41,47 @@ export const STORAGE_BOX_LID_BASE_CONSTANTS = {
   },
 } as const;
 
+export const PRINT_IN_PLACE_STORAGE_BOX_CONSTANTS = {
+  usableOffsets: {
+    width: 10,
+    depth: 9.1,
+    height: 8.1,
+  },
+} as const;
+
+const PRINT_IN_PLACE_STORAGE_BOX_OUTSIDE_LIMITS = {
+  boxWidth: { minimum: 92, maximum: 350 },
+  boxDepth: { minimum: 25, maximum: 350 },
+  boxHeight: { minimum: 35, maximum: 350 },
+} as const;
+
+const printInPlaceStorageBoxUsableLimits = {
+  width: {
+    minimum:
+      PRINT_IN_PLACE_STORAGE_BOX_OUTSIDE_LIMITS.boxWidth.minimum -
+      PRINT_IN_PLACE_STORAGE_BOX_CONSTANTS.usableOffsets.width,
+    maximum:
+      PRINT_IN_PLACE_STORAGE_BOX_OUTSIDE_LIMITS.boxWidth.maximum -
+      PRINT_IN_PLACE_STORAGE_BOX_CONSTANTS.usableOffsets.width,
+  },
+  depth: {
+    minimum:
+      PRINT_IN_PLACE_STORAGE_BOX_OUTSIDE_LIMITS.boxDepth.minimum -
+      PRINT_IN_PLACE_STORAGE_BOX_CONSTANTS.usableOffsets.depth,
+    maximum:
+      PRINT_IN_PLACE_STORAGE_BOX_OUTSIDE_LIMITS.boxDepth.maximum -
+      PRINT_IN_PLACE_STORAGE_BOX_CONSTANTS.usableOffsets.depth,
+  },
+  height: {
+    minimum:
+      PRINT_IN_PLACE_STORAGE_BOX_OUTSIDE_LIMITS.boxHeight.minimum -
+      PRINT_IN_PLACE_STORAGE_BOX_CONSTANTS.usableOffsets.height,
+    maximum:
+      PRINT_IN_PLACE_STORAGE_BOX_OUTSIDE_LIMITS.boxHeight.maximum -
+      PRINT_IN_PLACE_STORAGE_BOX_CONSTANTS.usableOffsets.height,
+  },
+} as const;
+
 const STORAGE_BOX_LID_BASE_OUTSIDE_LIMITS = {
   boxWidth: { minimum: 95, maximum: 350 },
   boxDepth: { minimum: 25, maximum: 350 },
@@ -125,5 +166,10 @@ export const ENGINEERING_LIMITS = {
   storageBoxLidBase: {
     outside: STORAGE_BOX_LID_BASE_OUTSIDE_LIMITS,
     usable: storageBoxUsableLimits,
+  },
+
+  printInPlaceStorageBox: {
+    outside: PRINT_IN_PLACE_STORAGE_BOX_OUTSIDE_LIMITS,
+    usable: printInPlaceStorageBoxUsableLimits,
   },
 } as const;

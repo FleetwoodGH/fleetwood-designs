@@ -2,12 +2,17 @@ import {
   calculateBaseHeight,
   calculateClosedOutsideHeight,
   calculateOutsideLed,
+  calculatePrintInPlaceStorageBox,
   calculateStorageBoxLidBase,
   calculateTrayOutsideHeightFromSystemHeight,
   calculateUsableSpaceLed,
 } from "@/lib/engineering/calculations";
-import { generateMakerWorldParameters } from "@/lib/engineering/makerworld";
-import { generateStorageBoxLidBaseParameters } from "@/lib/engineering/makerworld";
+import {
+  generateMakerWorldParameters,
+  generatePrintInPlaceStorageBoxParameters,
+  generateStorageBoxLidBaseParameters,
+} from "@/lib/engineering/makerworld";
+import { ENGINEERING_LIMITS } from "@/lib/engineering/engineeringConstants";
 
 import type {
   OutsideLedStorageSystemCalculationInput,
@@ -738,5 +743,95 @@ export function runEngineeringValidation() {
     JSON.stringify(storageBoxParameters.map((parameter) => parameter.value)) ===
       JSON.stringify([125, 80, 57, 15]),
     "Storage box MakerWorld parameter values changed unexpectedly.",
+  );
+
+  // Print-in-Place Storage Box: derived limits, forward/inverse calculations,
+  // round trips, validation and MakerWorld mapping.
+  const printInPlaceLimits = ENGINEERING_LIMITS.printInPlaceStorageBox;
+  assertClose(printInPlaceLimits.usable.width.minimum, 82, "Print-in-place minimum usable width");
+  assertClose(printInPlaceLimits.usable.width.maximum, 340, "Print-in-place maximum usable width");
+  assertClose(printInPlaceLimits.usable.depth.minimum, 15.9, "Print-in-place minimum usable depth");
+  assertClose(printInPlaceLimits.usable.depth.maximum, 340.9, "Print-in-place maximum usable depth");
+  assertClose(printInPlaceLimits.usable.height.minimum, 26.9, "Print-in-place minimum usable height");
+  assertClose(printInPlaceLimits.usable.height.maximum, 341.9, "Print-in-place maximum usable height");
+
+  const printInPlaceOutside = calculatePrintInPlaceStorageBox({
+    strategy: "outside-led",
+    dimensions: { width: 125, depth: 80, height: 40 },
+  });
+  assertClose(printInPlaceOutside.usable.width, 115, "Print-in-place usable width");
+  assertClose(printInPlaceOutside.usable.depth, 70.9, "Print-in-place usable depth");
+  assertClose(printInPlaceOutside.usable.height, 31.9, "Print-in-place usable height");
+
+  const printInPlaceUsable = calculatePrintInPlaceStorageBox({
+    strategy: "usable-space-led",
+    dimensions: { width: 115, depth: 70.9, height: 31.9 },
+  });
+  assertClose(printInPlaceUsable.outside.width, 125, "Print-in-place outside width");
+  assertClose(printInPlaceUsable.outside.depth, 80, "Print-in-place outside depth");
+  assertClose(printInPlaceUsable.outside.height, 40, "Print-in-place outside height");
+
+  for (const outsideDimensions of [
+    { width: 92, depth: 25, height: 35 },
+    { width: 125, depth: 80, height: 40 },
+    { width: 350, depth: 350, height: 350 },
+  ]) {
+    const outsideResult = calculatePrintInPlaceStorageBox({
+      strategy: "outside-led",
+      dimensions: outsideDimensions,
+    });
+    const usableResult = calculatePrintInPlaceStorageBox({
+      strategy: "usable-space-led",
+      dimensions: outsideResult.usable,
+    });
+
+    for (const key of ["width", "depth", "height"] as const) {
+      assertClose(
+        usableResult.outside[key],
+        outsideResult.outside[key],
+        `Print-in-place outside round trip ${key}`,
+      );
+      assertClose(
+        usableResult.usable[key],
+        outsideResult.usable[key],
+        `Print-in-place usable round trip ${key}`,
+      );
+    }
+  }
+
+  expectRejected(
+    () =>
+      calculatePrintInPlaceStorageBox({
+        strategy: "outside-led",
+        dimensions: { width: 92, depth: 25, height: 34.999 },
+      }),
+    "Minimum supported box height is 35 mm",
+  );
+  expectRejected(
+    () =>
+      calculatePrintInPlaceStorageBox({
+        strategy: "usable-space-led",
+        dimensions: { width: 82, depth: 15.9, height: 26.899 },
+      }),
+    "Minimum supported usable height is 26.9 mm",
+  );
+
+  const printInPlaceParameters = generatePrintInPlaceStorageBoxParameters(
+    printInPlaceOutside,
+  ).groups.flatMap((group) => group.parameters);
+  assert(
+    JSON.stringify(printInPlaceParameters.map((parameter) => parameter.name)) ===
+      JSON.stringify(["boxWidth", "boxDepth", "boxHeight"]),
+    "Print-in-place MakerWorld parameter order changed unexpectedly.",
+  );
+  assert(
+    JSON.stringify(printInPlaceParameters.map((parameter) => parameter.value)) ===
+      JSON.stringify([125, 80, 40]),
+    "Print-in-place MakerWorld parameter values changed unexpectedly.",
+  );
+  assert(
+    JSON.stringify(printInPlaceParameters.map((parameter) => parameter.displayValue)) ===
+      JSON.stringify(["125.00", "80.00", "40.00"]),
+    "Print-in-place MakerWorld parameter formatting changed unexpectedly.",
   );
 }

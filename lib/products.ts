@@ -11,4 +11,10 @@ export const PRODUCTS = {
     makerWorldUrl:
       "https://makerworld.com/en/models/2978343-parametric-storage-box-custom-lid-base#profileId-3341252",
   },
+  printInPlaceStorageBox: {
+    name: "Print-in-Place Storage Box",
+    configuratorPath: "/configure/print-in-place-storage-box",
+    makerWorldUrl:
+      "https://makerworld.com/en/models/1832500-parametric-storage-box#profileId-2533201",
+  },
 } as const;

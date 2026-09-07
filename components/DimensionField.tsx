@@ -6,6 +6,7 @@ type DimensionFieldProps = {
   maximum?: number;
   minimumIsExclusive?: boolean;
   requirement?: string;
+  minimumErrorMessage?: string;
   isValid: boolean;
   hasError: boolean;
   inputMode?: "numeric" | "decimal";
@@ -21,6 +22,7 @@ export default function DimensionField({
   maximum,
   minimumIsExclusive = false,
   requirement,
+  minimumErrorMessage,
   isValid,
   hasError,
   inputMode = "numeric",
@@ -38,7 +40,7 @@ export default function DimensionField({
   const errorMessage =
     maximum !== undefined && value !== "" && numericValue > maximum
       ? `Maximum ${maximum} mm.`
-      : minimumMessage;
+      : (minimumErrorMessage ?? minimumMessage);
 
   return (
     <div className="min-w-0">

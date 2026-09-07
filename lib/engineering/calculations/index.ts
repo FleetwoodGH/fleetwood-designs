@@ -49,6 +49,13 @@ export {
   type StorageBoxLidBaseDimensions,
 } from "@/lib/engineering/calculations/storageBoxLidBase";
 
+export {
+  calculatePrintInPlaceStorageBox,
+  type PrintInPlaceStorageBoxCalculationInput,
+  type PrintInPlaceStorageBoxCalculationResult,
+  type PrintInPlaceStorageBoxDimensions,
+} from "@/lib/engineering/calculations/printInPlaceStorageBox";
+
 /* -------------------------------------------------------------------------- */
 /* Outside-led calculation                                                    */
 /* -------------------------------------------------------------------------- */
