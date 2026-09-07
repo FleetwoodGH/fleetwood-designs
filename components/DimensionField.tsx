@@ -3,6 +3,7 @@ type DimensionFieldProps = {
   label: string;
   value: string;
   minimum: number;
+  maximum?: number;
   minimumIsExclusive?: boolean;
   requirement?: string;
   isValid: boolean;
@@ -17,6 +18,7 @@ export default function DimensionField({
   label,
   value,
   minimum,
+  maximum,
   minimumIsExclusive = false,
   requirement,
   isValid,
@@ -32,6 +34,11 @@ export default function DimensionField({
     (minimumIsExclusive
       ? `Must be greater than ${minimum} mm.`
       : `Minimum ${minimum} mm.`);
+  const numericValue = Number(value);
+  const errorMessage =
+    maximum !== undefined && value !== "" && numericValue > maximum
+      ? `Maximum ${maximum} mm.`
+      : minimumMessage;
 
   return (
     <div className="min-w-0">
@@ -72,7 +79,7 @@ export default function DimensionField({
 
       {hasError ? (
         <p id={errorId} className="mt-1.5 text-xs leading-4 text-red-600">
-          {minimumMessage}
+          {errorMessage}
         </p>
       ) : disabled ? (
         <p id={helpId} className="mt-1.5 text-xs leading-4 text-neutral-500">

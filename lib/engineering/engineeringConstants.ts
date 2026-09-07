@@ -30,6 +30,59 @@ export const ENGINEERING_CONSTANTS = {
   },
 } as const;
 
+export const STORAGE_BOX_LID_BASE_CONSTANTS = {
+  usableOffsets: {
+    width: 8,
+    depth: 9.1,
+    // The base lip extends 2 mm above the visible outside seam.
+    baseHeight: 2,
+    // The matching lid recess and closing margin consume 6.1 mm.
+    lidHeight: 6.1,
+  },
+} as const;
+
+const STORAGE_BOX_LID_BASE_OUTSIDE_LIMITS = {
+  boxWidth: { minimum: 95, maximum: 350 },
+  boxDepth: { minimum: 25, maximum: 350 },
+  baseHeight: { minimum: 17, maximum: 350 },
+  lidHeight: { minimum: 13, maximum: 350 },
+} as const;
+
+const storageBoxUsableLimits = {
+  width: {
+    minimum:
+      STORAGE_BOX_LID_BASE_OUTSIDE_LIMITS.boxWidth.minimum -
+      STORAGE_BOX_LID_BASE_CONSTANTS.usableOffsets.width,
+    maximum:
+      STORAGE_BOX_LID_BASE_OUTSIDE_LIMITS.boxWidth.maximum -
+      STORAGE_BOX_LID_BASE_CONSTANTS.usableOffsets.width,
+  },
+  depth: {
+    minimum:
+      STORAGE_BOX_LID_BASE_OUTSIDE_LIMITS.boxDepth.minimum -
+      STORAGE_BOX_LID_BASE_CONSTANTS.usableOffsets.depth,
+    maximum:
+      STORAGE_BOX_LID_BASE_OUTSIDE_LIMITS.boxDepth.maximum -
+      STORAGE_BOX_LID_BASE_CONSTANTS.usableOffsets.depth,
+  },
+  baseHeight: {
+    minimum:
+      STORAGE_BOX_LID_BASE_OUTSIDE_LIMITS.baseHeight.minimum -
+      STORAGE_BOX_LID_BASE_CONSTANTS.usableOffsets.baseHeight,
+    maximum:
+      STORAGE_BOX_LID_BASE_OUTSIDE_LIMITS.baseHeight.maximum -
+      STORAGE_BOX_LID_BASE_CONSTANTS.usableOffsets.baseHeight,
+  },
+  lidHeight: {
+    minimum:
+      STORAGE_BOX_LID_BASE_OUTSIDE_LIMITS.lidHeight.minimum -
+      STORAGE_BOX_LID_BASE_CONSTANTS.usableOffsets.lidHeight,
+    maximum:
+      STORAGE_BOX_LID_BASE_OUTSIDE_LIMITS.lidHeight.maximum -
+      STORAGE_BOX_LID_BASE_CONSTANTS.usableOffsets.lidHeight,
+  },
+} as const;
+
 const MINIMUM_FUSION_TRAY_OUTSIDE_HEIGHT = 15;
 
 export const ENGINEERING_LIMITS = {
@@ -67,5 +120,10 @@ export const ENGINEERING_LIMITS = {
   trays: {
     minimum: 1,
     maximum: 10,
+  },
+
+  storageBoxLidBase: {
+    outside: STORAGE_BOX_LID_BASE_OUTSIDE_LIMITS,
+    usable: storageBoxUsableLimits,
   },
 } as const;

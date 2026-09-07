@@ -2,10 +2,12 @@ import {
   calculateBaseHeight,
   calculateClosedOutsideHeight,
   calculateOutsideLed,
+  calculateStorageBoxLidBase,
   calculateTrayOutsideHeightFromSystemHeight,
   calculateUsableSpaceLed,
 } from "@/lib/engineering/calculations";
 import { generateMakerWorldParameters } from "@/lib/engineering/makerworld";
+import { generateStorageBoxLidBaseParameters } from "@/lib/engineering/makerworld";
 
 import type {
   OutsideLedStorageSystemCalculationInput,
@@ -440,4 +442,301 @@ export function runEngineeringValidation() {
       );
     });
   }
+
+  // Storage Box — Custom Lid & Base: forward, inverse, boundaries and mapping.
+  const storageBoxOutside = calculateStorageBoxLidBase({
+    strategy: "outside-led",
+    dimensions: {
+      width: 125,
+      depth: 80,
+      baseHeight: 57,
+      lidHeight: 15,
+    },
+  });
+  assertClose(storageBoxOutside.usable.width, 117, "Storage box usable width");
+  assertClose(storageBoxOutside.usable.depth, 70.9, "Storage box usable depth");
+  assertClose(
+    storageBoxOutside.usable.baseHeight,
+    55,
+    "Storage box usable base height",
+  );
+  assertClose(
+    storageBoxOutside.usable.lidHeight,
+    8.9,
+    "Storage box usable lid height",
+  );
+
+  const storageBoxUsable = calculateStorageBoxLidBase({
+    strategy: "usable-space-led",
+    dimensions: {
+      width: 117,
+      depth: 70.9,
+      baseHeight: 55,
+      lidHeight: 8.9,
+    },
+  });
+  assertClose(storageBoxUsable.outside.width, 125, "Storage box outside width");
+  assertClose(storageBoxUsable.outside.depth, 80, "Storage box outside depth");
+  assertClose(
+    storageBoxUsable.outside.baseHeight,
+    57,
+    "Storage box outside base height",
+  );
+  assertClose(
+    storageBoxUsable.outside.lidHeight,
+    15,
+    "Storage box outside lid height",
+  );
+  assertClose(
+    storageBoxUsable.totalOutsideHeight,
+    72,
+    "Storage box total outside height",
+  );
+  for (const key of ["width", "depth", "baseHeight", "lidHeight"] as const) {
+    assertClose(
+      storageBoxUsable.outside[key],
+      storageBoxOutside.outside[key],
+      `Storage box outside round trip ${key}`,
+    );
+  }
+
+  for (const dimensions of [
+    { width: 95, depth: 25, baseHeight: 17, lidHeight: 13 },
+    { width: 200, depth: 140, baseHeight: 80, lidHeight: 25 },
+    { width: 350, depth: 350, baseHeight: 350, lidHeight: 350 },
+  ]) {
+    const outsideResult = calculateStorageBoxLidBase({
+      strategy: "outside-led",
+      dimensions,
+    });
+    const usableResult = calculateStorageBoxLidBase({
+      strategy: "usable-space-led",
+      dimensions: outsideResult.usable,
+    });
+    for (const key of ["width", "depth", "baseHeight", "lidHeight"] as const) {
+      assertClose(
+        usableResult.outside[key],
+        outsideResult.outside[key],
+        `Storage box boundary round trip ${key}`,
+      );
+      assertClose(
+        outsideResult.usable[key],
+        usableResult.usable[key],
+        `Storage box usable boundary round trip ${key}`,
+      );
+    }
+  }
+
+  const storageBoxMinimum = calculateStorageBoxLidBase({
+    strategy: "outside-led",
+    dimensions: { width: 95, depth: 25, baseHeight: 17, lidHeight: 13 },
+  });
+  assertClose(
+    storageBoxMinimum.usable.baseHeight,
+    15,
+    "Minimum usable base height",
+  );
+  assertClose(
+    storageBoxMinimum.usable.lidHeight,
+    6.9,
+    "Minimum usable lid height",
+  );
+  assertClose(
+    storageBoxMinimum.usable.depth,
+    15.9,
+    "Minimum usable depth",
+  );
+
+  const storageBoxMaximum = calculateStorageBoxLidBase({
+    strategy: "outside-led",
+    dimensions: {
+      width: 350,
+      depth: 350,
+      baseHeight: 350,
+      lidHeight: 350,
+    },
+  });
+  assertClose(
+    storageBoxMaximum.usable.baseHeight,
+    348,
+    "Maximum usable base height",
+  );
+  assertClose(
+    storageBoxMaximum.usable.lidHeight,
+    343.9,
+    "Maximum usable lid height",
+  );
+  assertClose(
+    storageBoxMaximum.usable.depth,
+    340.9,
+    "Maximum usable depth",
+  );
+
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "outside-led",
+        dimensions: { width: 94.999, depth: 80, baseHeight: 57, lidHeight: 13 },
+      }),
+    "Minimum supported box width is 95 mm",
+  );
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "outside-led",
+        dimensions: { width: 351, depth: 80, baseHeight: 57, lidHeight: 13 },
+      }),
+    "Maximum supported box width is 350 mm",
+  );
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "usable-space-led",
+        dimensions: {
+          width: 86.999,
+          depth: 70.9,
+          baseHeight: 55,
+          lidHeight: 8.9,
+        },
+      }),
+    "Minimum supported usable box width is 87 mm",
+  );
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "usable-space-led",
+        dimensions: {
+          width: 343,
+          depth: 70.9,
+          baseHeight: 55,
+          lidHeight: 8.9,
+        },
+      }),
+    "Maximum supported usable box width is 342 mm",
+  );
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "outside-led",
+        dimensions: { width: 125, depth: 80, baseHeight: 16.999, lidHeight: 15 },
+      }),
+    "Minimum supported base outside height is 17 mm",
+  );
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "outside-led",
+        dimensions: { width: 125, depth: 80, baseHeight: 351, lidHeight: 15 },
+      }),
+    "Maximum supported base outside height is 350 mm",
+  );
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "outside-led",
+        dimensions: { width: 125, depth: 80, baseHeight: 57, lidHeight: 12.999 },
+      }),
+    "Minimum supported lid outside height is 13 mm",
+  );
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "outside-led",
+        dimensions: { width: 125, depth: 80, baseHeight: 57, lidHeight: 351 },
+      }),
+    "Maximum supported lid outside height is 350 mm",
+  );
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "usable-space-led",
+        dimensions: {
+          width: 117,
+          depth: 70.9,
+          baseHeight: 14.999,
+          lidHeight: 8.9,
+        },
+      }),
+    "Minimum supported usable base height is 15 mm",
+  );
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "usable-space-led",
+        dimensions: {
+          width: 117,
+          depth: 70.9,
+          baseHeight: 349,
+          lidHeight: 8.9,
+        },
+      }),
+    "Maximum supported usable base height is 348 mm",
+  );
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "usable-space-led",
+        dimensions: {
+          width: 117,
+          depth: 70.9,
+          baseHeight: 55,
+          lidHeight: 6.899,
+        },
+      }),
+    "Minimum supported usable lid height is 6.9 mm",
+  );
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "usable-space-led",
+        dimensions: {
+          width: 117,
+          depth: 70.9,
+          baseHeight: 55,
+          lidHeight: 344,
+        },
+      }),
+    "Maximum supported usable lid height is 343.9 mm",
+  );
+
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "usable-space-led",
+        dimensions: {
+          width: 117,
+          depth: 15.899,
+          baseHeight: 55,
+          lidHeight: 8.9,
+        },
+      }),
+    "Minimum supported usable box depth is 15.9 mm",
+  );
+  expectRejected(
+    () =>
+      calculateStorageBoxLidBase({
+        strategy: "usable-space-led",
+        dimensions: {
+          width: 117,
+          depth: 341,
+          baseHeight: 55,
+          lidHeight: 8.9,
+        },
+      }),
+    "Maximum supported usable box depth is 340.9 mm",
+  );
+
+  const storageBoxParameters = generateStorageBoxLidBaseParameters(
+    storageBoxOutside,
+  ).groups.flatMap((group) => group.parameters);
+  assert(
+    JSON.stringify(storageBoxParameters.map((parameter) => parameter.name)) ===
+      JSON.stringify(["boxWidth", "boxDepth", "baseHeight", "lidHeight"]),
+    "Storage box MakerWorld parameter order changed unexpectedly.",
+  );
+  assert(
+    JSON.stringify(storageBoxParameters.map((parameter) => parameter.value)) ===
+      JSON.stringify([125, 80, 57, 15]),
+    "Storage box MakerWorld parameter values changed unexpectedly.",
+  );
 }

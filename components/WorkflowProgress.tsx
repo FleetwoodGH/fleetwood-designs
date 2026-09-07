@@ -1,11 +1,13 @@
-const stages = ["Configuration", "Dimensions", "Parameters"];
+const defaultStages = ["Configuration", "Dimensions", "Parameters"];
 
 type WorkflowProgressProps = {
   currentStage: number;
+  stages?: readonly string[];
 };
 
 export default function WorkflowProgress({
   currentStage,
+  stages = defaultStages,
 }: WorkflowProgressProps) {
   return (
     <nav

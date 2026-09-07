@@ -6,6 +6,9 @@ import { PRODUCTS } from "@/lib/products";
 
 type MakerWorldParameterPreviewProps = {
   parameters: MakerWorldParameters;
+  inputOrder?: readonly string[];
+  makerWorldUrl?: string | null;
+  splitAcrossColumns?: boolean;
 };
 
 const MAKERWORLD_INPUT_ORDER = [
@@ -36,14 +39,17 @@ const MAKERWORLD_INPUT_ORDER = [
   "toggleH5",
 ] as const;
 
-function getOrderedParameters(parameters: MakerWorldParameters) {
+function getOrderedParameters(
+  parameters: MakerWorldParameters,
+  inputOrder: readonly string[],
+) {
   const parametersByName = new Map(
     parameters.groups
       .flatMap((group) => group.parameters)
       .map((parameter) => [parameter.name, parameter]),
   );
 
-  return MAKERWORLD_INPUT_ORDER.map((name) => {
+  return inputOrder.map((name) => {
     const parameter = parametersByName.get(name);
 
     if (!parameter) {
@@ -80,8 +86,11 @@ function ParameterRow({ parameter }: { parameter: MakerWorldParameter }) {
 
 export default function MakerWorldParameterPreview({
   parameters,
+  inputOrder = MAKERWORLD_INPUT_ORDER,
+  makerWorldUrl = PRODUCTS.trayStorageSystem.makerWorldUrl,
+  splitAcrossColumns = true,
 }: MakerWorldParameterPreviewProps) {
-  const orderedParameters = getOrderedParameters(parameters);
+  const orderedParameters = getOrderedParameters(parameters, inputOrder);
 
   return (
     <section
@@ -97,34 +106,47 @@ export default function MakerWorldParameterPreview({
           Enter these values into MakerWorld in the order shown.
         </p>
 
-        <div className="mt-3">
-          <a
-            href={PRODUCTS.trayStorageSystem.makerWorldUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 transition hover:border-neutral-400 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
-          >
-            Open model in MakerWorld
-          </a>
+        {makerWorldUrl && (
+          <div className="mt-3">
+            <a
+              href={makerWorldUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 transition hover:border-neutral-400 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
+            >
+              Open model in MakerWorld
+            </a>
 
-          <p className="mt-2 max-w-2xl text-xs leading-4 text-neutral-500">
-            Opens the configurable model in MakerWorld. Enter the parameters
-            shown below manually.
-          </p>
-        </div>
+            <p className="mt-2 max-w-2xl text-xs leading-4 text-neutral-500">
+              Opens the configurable model in MakerWorld. Enter the parameters
+              shown below manually.
+            </p>
+          </div>
+        )}
       </header>
 
       <div className="overflow-hidden rounded-lg border border-neutral-300 bg-white">
-        <div className="md:hidden">
+        {splitAcrossColumns ? (
+          <>
+            <div className="md:hidden">
+              <ParameterHeadings />
+            </div>
+            <div className="hidden grid-cols-2 gap-x-2 md:grid">
+              <ParameterHeadings />
+              <ParameterHeadings />
+            </div>
+          </>
+        ) : (
           <ParameterHeadings />
-        </div>
+        )}
 
-        <div className="hidden grid-cols-2 gap-x-2 md:grid">
-          <ParameterHeadings />
-          <ParameterHeadings />
-        </div>
-
-        <dl className="grid md:grid-flow-col md:grid-cols-2 md:grid-rows-[repeat(13,minmax(0,auto))] md:gap-x-2">
+        <dl
+          className={
+            splitAcrossColumns
+              ? "grid md:grid-flow-col md:grid-cols-2 md:grid-rows-[repeat(13,minmax(0,auto))] md:gap-x-2"
+              : "grid"
+          }
+        >
           {orderedParameters.map((parameter) => (
             <ParameterRow key={parameter.name} parameter={parameter} />
           ))}

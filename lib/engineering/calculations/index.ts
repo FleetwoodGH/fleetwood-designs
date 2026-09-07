@@ -42,6 +42,13 @@ import type {
   CompartmentDimensions,
 } from "@/lib/engineering/types";
 
+export {
+  calculateStorageBoxLidBase,
+  type StorageBoxLidBaseCalculationInput,
+  type StorageBoxLidBaseCalculationResult,
+  type StorageBoxLidBaseDimensions,
+} from "@/lib/engineering/calculations/storageBoxLidBase";
+
 /* -------------------------------------------------------------------------- */
 /* Outside-led calculation                                                    */
 /* -------------------------------------------------------------------------- */

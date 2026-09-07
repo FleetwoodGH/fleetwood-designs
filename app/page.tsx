@@ -23,12 +23,21 @@ export default function Home() {
           Projects
         </h2>
 
-        <Link
-          href={PRODUCTS.trayStorageSystem.configuratorPath}
-          className="inline-flex rounded-lg border border-neutral-300 px-5 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
-        >
-          Configure the {PRODUCTS.trayStorageSystem.name} →
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href={PRODUCTS.trayStorageSystem.configuratorPath}
+            className="inline-flex rounded-lg border border-neutral-300 px-5 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
+          >
+            Configure the {PRODUCTS.trayStorageSystem.name} →
+          </Link>
+
+          <Link
+            href={PRODUCTS.storageBoxLidBase.configuratorPath}
+            className="inline-flex rounded-lg border border-neutral-300 px-5 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
+          >
+            Configure the {PRODUCTS.storageBoxLidBase.name} →
+          </Link>
+        </div>
       </section>
     </main>
   );

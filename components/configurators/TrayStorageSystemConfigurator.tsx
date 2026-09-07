@@ -5,29 +5,7 @@ import DesignWorkflow from "@/components/storage-design-assistant/DesignWorkflow
 import DimensionWorkflow from "@/components/storage-design-assistant/DimensionWorkflow";
 import { useTrayStorageSystemState } from "@/components/storage-design-assistant/useTrayStorageSystemState";
 import WorkflowProgress from "@/components/WorkflowProgress";
-
-function scrollToWorkflowSection(selector: string) {
-  window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(() => {
-      const section = document.querySelector(selector);
-
-      if (!section) {
-        return;
-      }
-
-      const progressHeight =
-        document
-          .querySelector('nav[aria-label="Design progress"]')
-          ?.getBoundingClientRect().height ?? 0;
-      const sectionRect = section.getBoundingClientRect();
-
-      window.scrollTo({
-        top: Math.max(0, window.scrollY + sectionRect.top - progressHeight),
-        behavior: "smooth",
-      });
-    });
-  });
-}
+import { scrollToWorkflowSection } from "@/components/configurators/scrollToWorkflowSection";
 
 export default function TrayStorageSystemConfigurator() {
   const { designWorkflow, dimensionWorkflow, calculationSection } =
