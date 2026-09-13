@@ -2,6 +2,7 @@ import {
   calculateBaseHeight,
   calculateClosedOutsideHeight,
   calculateOutsideLed,
+  calculatePrintInPlaceCompartmentBox,
   calculatePrintInPlaceStorageBox,
   calculateStorageBoxLidBase,
   calculateTrayOutsideHeightFromSystemHeight,
@@ -9,7 +10,9 @@ import {
 } from "@/lib/engineering/calculations";
 import {
   generateMakerWorldParameters,
+  generatePrintInPlaceCompartmentBoxParameters,
   generatePrintInPlaceStorageBoxParameters,
+  PRINT_IN_PLACE_COMPARTMENT_BOX_PARAMETER_ORDER,
   generateStorageBoxLidBaseParameters,
 } from "@/lib/engineering/makerworld";
 import { ENGINEERING_LIMITS } from "@/lib/engineering/engineeringConstants";
@@ -834,4 +837,475 @@ export function runEngineeringValidation() {
       JSON.stringify(["125.00", "80.00", "40.00"]),
     "Print-in-place MakerWorld parameter formatting changed unexpectedly.",
   );
+
+  // Print-in-Place Storage Box with Compartments: shared box constraints,
+  // independent half layouts, full separator capacity and exact mapping.
+  const compartmentBoxLimits =
+    ENGINEERING_LIMITS.printInPlaceStorageBoxCompartments;
+  assertClose(
+    compartmentBoxLimits.usable.width.minimum,
+    84,
+    "Compartment box minimum usable width",
+  );
+  assertClose(
+    compartmentBoxLimits.usable.width.maximum,
+    292,
+    "Compartment box maximum usable width",
+  );
+  assertClose(
+    compartmentBoxLimits.usable.depth.minimum,
+    15.9,
+    "Compartment box minimum usable depth",
+  );
+  assertClose(
+    compartmentBoxLimits.usable.depth.maximum,
+    290.9,
+    "Compartment box maximum usable depth",
+  );
+  assertClose(
+    compartmentBoxLimits.usable.baseHeight.maximum,
+    144,
+    "Compartment box maximum usable base height",
+  );
+  assertClose(
+    compartmentBoxLimits.usable.lidHeight.maximum,
+    141.9,
+    "Compartment box maximum usable lid height",
+  );
+  assert(
+    compartmentBoxLimits.grid.maximumColumns === 7 &&
+      compartmentBoxLimits.grid.maximumRows === 5,
+    "Compartment box grid capacity changed unexpectedly.",
+  );
+
+  const maximumEqualLayout = {
+    method: "equal" as const,
+    rows: 5,
+    columns: 7,
+  };
+  const compartmentBoxOutside = calculatePrintInPlaceCompartmentBox({
+    strategy: "outside-led",
+    dimensions: { width: 125, depth: 80, height: 40 },
+    baseLayout: maximumEqualLayout,
+    lidLayout: { mode: "same-as-base" },
+  });
+  assertClose(compartmentBoxOutside.usable.width, 117, "Compartment usable width");
+  assertClose(compartmentBoxOutside.usable.depth, 70.9, "Compartment usable depth");
+  assertClose(
+    compartmentBoxOutside.usable.baseHeight,
+    14,
+    "Compartment usable base height",
+  );
+  assertClose(
+    compartmentBoxOutside.usable.lidHeight,
+    11.9,
+    "Compartment usable lid height",
+  );
+  assert(
+    compartmentBoxOutside.baseLayout.dividers.verticalPositions.length === 6 &&
+      compartmentBoxOutside.baseLayout.dividers.horizontalPositions.length === 4,
+    "Maximum compartment grid must create 6 vertical and 4 horizontal separators.",
+  );
+  assert(
+    compartmentBoxOutside.baseLayout.dividers.verticalToggles.every(
+      (toggle) => toggle === 1,
+    ) &&
+      compartmentBoxOutside.baseLayout.dividers.horizontalToggles.every(
+        (toggle) => toggle === 1,
+      ),
+    "Maximum compartment grid must activate every separator slot.",
+  );
+  assert(
+    compartmentBoxOutside.lidLayout === compartmentBoxOutside.baseLayout,
+    "Same-layout lid must reuse the base engineering layout result.",
+  );
+
+  const compartmentBoxHeight50 = calculatePrintInPlaceCompartmentBox({
+    strategy: "outside-led",
+    dimensions: { width: 125, depth: 80, height: 50 },
+    baseLayout: { method: "equal", rows: 1, columns: 1 },
+    lidLayout: { mode: "same-as-base" },
+  });
+  assertClose(
+    compartmentBoxHeight50.usable.baseHeight,
+    19,
+    "50 mm box usable base height",
+  );
+  assertClose(
+    compartmentBoxHeight50.usable.lidHeight,
+    16.9,
+    "50 mm box usable lid height",
+  );
+
+  const compartmentBoxHeight70 = calculatePrintInPlaceCompartmentBox({
+    strategy: "outside-led",
+    dimensions: { width: 125, depth: 60, height: 70 },
+    baseLayout: { method: "equal", rows: 1, columns: 1 },
+    lidLayout: { mode: "same-as-base" },
+  });
+  assertClose(
+    compartmentBoxHeight70.usable.depth,
+    50.9,
+    "60 mm box usable depth",
+  );
+  assertClose(
+    compartmentBoxHeight70.usable.baseHeight,
+    29,
+    "70 mm box usable base height",
+  );
+  assertClose(
+    compartmentBoxHeight70.usable.lidHeight,
+    26.9,
+    "70 mm box usable lid height",
+  );
+
+  const representativeRoundTrip = calculatePrintInPlaceCompartmentBox({
+    strategy: "usable-space-led",
+    requiredHeights: { base: 19, lid: 16.9 },
+    baseLayout: {
+      method: "equal",
+      rows: 1,
+      columns: 1,
+      requiredCompartmentWidth: 117,
+      requiredCompartmentDepth: 50.9,
+    },
+    lidLayout: { mode: "same-as-base" },
+  });
+  assertClose(representativeRoundTrip.outside.width, 125, "Round-trip box width");
+  assertClose(representativeRoundTrip.outside.depth, 60, "Round-trip box depth");
+  assertClose(representativeRoundTrip.outside.height, 50, "Round-trip box height");
+  assertClose(
+    representativeRoundTrip.usable.depth,
+    50.9,
+    "Round-trip usable depth",
+  );
+  assertClose(
+    representativeRoundTrip.makerWorldInputs.boxDepth,
+    60,
+    "MakerWorld must receive the nominal box depth",
+  );
+
+  for (const boundary of [
+    {
+      label: "minimum",
+      outside: { width: 92, depth: 25, height: 35 },
+      usable: { width: 84, depth: 15.9, baseHeight: 11.5, lidHeight: 9.4 },
+    },
+    {
+      label: "maximum",
+      outside: { width: 300, depth: 300, height: 300 },
+      usable: { width: 292, depth: 290.9, baseHeight: 144, lidHeight: 141.9 },
+    },
+  ]) {
+    const outsideToUsable = calculatePrintInPlaceCompartmentBox({
+      strategy: "outside-led",
+      dimensions: boundary.outside,
+      baseLayout: { method: "equal", rows: 1, columns: 1 },
+      lidLayout: { mode: "same-as-base" },
+    });
+    assertClose(
+      outsideToUsable.usable.depth,
+      boundary.usable.depth,
+      `${boundary.label} outside-to-usable depth`,
+    );
+
+    const usableToOutside = calculatePrintInPlaceCompartmentBox({
+      strategy: "usable-space-led",
+      requiredHeights: {
+        base: boundary.usable.baseHeight,
+        lid: boundary.usable.lidHeight,
+      },
+      baseLayout: {
+        method: "equal",
+        rows: 1,
+        columns: 1,
+        requiredCompartmentWidth: boundary.usable.width,
+        requiredCompartmentDepth: boundary.usable.depth,
+      },
+      lidLayout: { mode: "same-as-base" },
+    });
+    assertClose(
+      usableToOutside.outside.width,
+      boundary.outside.width,
+      `${boundary.label} usable-to-outside width`,
+    );
+    assertClose(
+      usableToOutside.outside.depth,
+      boundary.outside.depth,
+      `${boundary.label} usable-to-outside depth`,
+    );
+    assertClose(
+      usableToOutside.outside.height,
+      boundary.outside.height,
+      `${boundary.label} usable-to-outside height`,
+    );
+  }
+
+  const separateEqualLayouts = calculatePrintInPlaceCompartmentBox({
+    strategy: "outside-led",
+    dimensions: { width: 125, depth: 80, height: 40 },
+    baseLayout: { method: "equal", rows: 2, columns: 3 },
+    lidLayout: {
+      mode: "separate",
+      layout: { method: "equal", rows: 4, columns: 2 },
+    },
+  });
+  assert(
+    separateEqualLayouts.baseLayout.dividers.verticalPositions.length === 2 &&
+      separateEqualLayouts.baseLayout.dividers.horizontalPositions.length === 1 &&
+      separateEqualLayouts.lidLayout.dividers.verticalPositions.length === 1 &&
+      separateEqualLayouts.lidLayout.dividers.horizontalPositions.length === 3,
+    "Separate equal-grid layouts must remain independent.",
+  );
+
+  const asymmetricCustomLayouts = calculatePrintInPlaceCompartmentBox({
+    strategy: "outside-led",
+    dimensions: { width: 125, depth: 80, height: 40 },
+    baseLayout: {
+      method: "custom",
+      rows: 2,
+      columns: 3,
+      columnPercentages: [20, 30, 50],
+      rowPercentages: [40, 60],
+    },
+    lidLayout: {
+      mode: "separate",
+      layout: {
+        method: "custom",
+        rows: 3,
+        columns: 2,
+        columnPercentages: [60, 40],
+        rowPercentages: [20, 30, 50],
+      },
+    },
+  });
+  assertClose(
+    asymmetricCustomLayouts.baseLayout.dividers.verticalPositions[0],
+    0.201709,
+    "Custom base first vertical position",
+  );
+  assertClose(
+    asymmetricCustomLayouts.baseLayout.dividers.verticalPositions[1],
+    0.508547,
+    "Custom base second vertical position",
+  );
+  assertClose(
+    asymmetricCustomLayouts.baseLayout.dividers.horizontalPositions[0],
+    0.402817,
+    "Custom base first horizontal position",
+  );
+  assert(
+    JSON.stringify(
+      asymmetricCustomLayouts.baseLayout.dividers.verticalToggles,
+    ) === JSON.stringify([1, 1, 0, 0, 0, 0]) &&
+      JSON.stringify(
+        asymmetricCustomLayouts.baseLayout.dividers.horizontalToggles,
+      ) === JSON.stringify([1, 0, 0, 0]),
+    "Custom base separator slots must be zero-filled.",
+  );
+
+  function equalRequiredLayout(
+    rows: number,
+    columns: number,
+    width: number,
+    depth: number,
+  ) {
+    return {
+      method: "equal" as const,
+      rows,
+      columns,
+      requiredCompartmentWidth: width,
+      requiredCompartmentDepth: depth,
+    };
+  }
+
+  const baseDeterminesWidth = calculatePrintInPlaceCompartmentBox({
+    strategy: "usable-space-led",
+    requiredHeights: { base: 10, lid: 10 },
+    baseLayout: equalRequiredLayout(1, 3, 40, 20),
+    lidLayout: {
+      mode: "separate",
+      layout: equalRequiredLayout(1, 2, 30, 20),
+    },
+  });
+  assertClose(baseDeterminesWidth.outside.width, 132, "Base-led box width");
+
+  const lidDeterminesWidth = calculatePrintInPlaceCompartmentBox({
+    strategy: "usable-space-led",
+    requiredHeights: { base: 10, lid: 10 },
+    baseLayout: equalRequiredLayout(1, 2, 30, 20),
+    lidLayout: {
+      mode: "separate",
+      layout: equalRequiredLayout(1, 3, 40, 20),
+    },
+  });
+  assertClose(lidDeterminesWidth.outside.width, 132, "Lid-led box width");
+
+  const baseDeterminesDepth = calculatePrintInPlaceCompartmentBox({
+    strategy: "usable-space-led",
+    requiredHeights: { base: 10, lid: 10 },
+    baseLayout: equalRequiredLayout(3, 1, 20, 20),
+    lidLayout: {
+      mode: "separate",
+      layout: equalRequiredLayout(1, 1, 20, 20),
+    },
+  });
+  assertClose(baseDeterminesDepth.outside.depth, 73.1, "Base-led box depth");
+
+  const lidDeterminesDepth = calculatePrintInPlaceCompartmentBox({
+    strategy: "usable-space-led",
+    requiredHeights: { base: 10, lid: 10 },
+    baseLayout: equalRequiredLayout(1, 1, 20, 20),
+    lidLayout: {
+      mode: "separate",
+      layout: equalRequiredLayout(3, 1, 20, 20),
+    },
+  });
+  assertClose(lidDeterminesDepth.outside.depth, 73.1, "Lid-led box depth");
+
+  const baseDeterminesHeight = calculatePrintInPlaceCompartmentBox({
+    strategy: "usable-space-led",
+    requiredHeights: { base: 20, lid: 10 },
+    baseLayout: equalRequiredLayout(1, 1, 84, 16),
+    lidLayout: { mode: "same-as-base" },
+  });
+  assertClose(baseDeterminesHeight.outside.height, 52, "Base-led box height");
+  assertClose(baseDeterminesHeight.usable.baseHeight, 20, "Requested base height");
+  assertClose(baseDeterminesHeight.usable.lidHeight, 17.9, "Resulting lid height");
+
+  const lidDeterminesHeight = calculatePrintInPlaceCompartmentBox({
+    strategy: "usable-space-led",
+    requiredHeights: { base: 10, lid: 20 },
+    baseLayout: equalRequiredLayout(1, 1, 84, 16),
+    lidLayout: { mode: "same-as-base" },
+  });
+  assertClose(lidDeterminesHeight.outside.height, 56.2, "Lid-led box height");
+  assertClose(lidDeterminesHeight.usable.baseHeight, 22.1, "Resulting base height");
+  assertClose(lidDeterminesHeight.usable.lidHeight, 20, "Requested lid height");
+
+  const requiredCustomLayouts = calculatePrintInPlaceCompartmentBox({
+    strategy: "usable-space-led",
+    requiredHeights: { base: 20, lid: 18 },
+    baseLayout: {
+      method: "custom",
+      rows: 2,
+      columns: 3,
+      requiredColumnWidths: [30, 20, 40],
+      requiredRowDepths: [20, 30],
+    },
+    lidLayout: {
+      mode: "separate",
+      layout: {
+        method: "custom",
+        rows: 3,
+        columns: 2,
+        requiredColumnWidths: [25, 35],
+        requiredRowDepths: [15, 20, 25],
+      },
+    },
+  });
+  assertClose(requiredCustomLayouts.outside.width, 102, "Custom shared box width");
+  assertClose(requiredCustomLayouts.outside.depth, 73.1, "Custom shared box depth");
+  assert(
+    requiredCustomLayouts.baseLayout.usableColumnWidths.every(
+      (value, index) => value >= [30, 20, 40][index],
+    ) &&
+      requiredCustomLayouts.lidLayout.usableRowDepths.every(
+        (value, index) => value >= [15, 20, 25][index],
+      ),
+    "Non-leading custom layouts must receive at least their requested usable sizes.",
+  );
+
+  const compartmentParameters =
+    generatePrintInPlaceCompartmentBoxParameters(compartmentBoxOutside).groups.flatMap(
+      (group) => group.parameters,
+    );
+  const compartmentParameterNames = compartmentParameters.map(
+    (parameter) => parameter.name,
+  );
+  const exactCompartmentParameterOrder = [
+    "boxWidth",
+    "boxHeight",
+    "boxDepth",
+    "separatorV1",
+    "separatorV2",
+    "separatorV3",
+    "separatorV4",
+    "separatorV5",
+    "separatorV1_position",
+    "separatorV2_position",
+    "separatorV3_position",
+    "separatorV4_position",
+    "separatorV5_position",
+    "separatorH1",
+    "separatorH2",
+    "separatorH3",
+    "separatorH1_position",
+    "separatorH2_position",
+    "separatorH3_position",
+    "LIDseparatorV1",
+    "LIDseparatorV2",
+    "LIDseparatorV3",
+    "LIDseparatorV4",
+    "LIDseparatorV5",
+    "LIDseparatorV1_position",
+    "LIDseparatorV2_position",
+    "LIDseparatorV3_position",
+    "LIDseparatorV4_position",
+    "LIDseparatorV5_position",
+    "LIDseparatorH1",
+    "LIDseparatorH2",
+    "LIDseparatorH3",
+    "LIDseparatorH1_position",
+    "LIDseparatorH2_position",
+    "LIDseparatorH3_position",
+    "separatorV6",
+    "separatorV6_position",
+    "LIDseparatorV6",
+    "LIDseparatorV6_position",
+    "separatorH4",
+    "separatorH4_position",
+    "LIDseparatorH4",
+    "LIDseparatorH4_position",
+  ];
+  assert(
+    JSON.stringify(PRINT_IN_PLACE_COMPARTMENT_BOX_PARAMETER_ORDER) ===
+      JSON.stringify(exactCompartmentParameterOrder),
+    "Compartment parameter presentation constant must match Fusion creation order.",
+  );
+  assert(
+    JSON.stringify(compartmentParameterNames) ===
+      JSON.stringify(exactCompartmentParameterOrder),
+    "Compartment MakerWorld parameter order changed unexpectedly.",
+  );
+  assert(
+    new Set(compartmentParameterNames).size === compartmentParameterNames.length,
+    "Every compartment MakerWorld parameter must appear exactly once.",
+  );
+  assert(
+    compartmentParameters.length === 43,
+    "Compartment MakerWorld mapping must contain all 43 parameters.",
+  );
+  const compartmentParameterMap = new Map(
+    compartmentParameters.map((parameter) => [parameter.name, parameter]),
+  );
+  for (const axis of ["V", "H"] as const) {
+    const count = axis === "V" ? 6 : 4;
+    for (let index = 1; index <= count; index += 1) {
+      for (const prefix of ["", "LID"] as const) {
+        const toggle = compartmentParameterMap.get(
+          `${prefix}separator${axis}${index}`,
+        );
+        const position = compartmentParameterMap.get(
+          `${prefix}separator${axis}${index}_position`,
+        );
+        assert(toggle && position, "Expected separator mapping is missing.");
+        assertClose(toggle.value, 1, "Maximum-grid separator toggle");
+        assert(
+          !position.displayValue.includes("000000000"),
+          "Separator position contains a floating-point presentation artifact.",
+        );
+      }
+    }
+  }
 }

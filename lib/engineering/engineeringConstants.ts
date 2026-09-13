@@ -49,6 +49,58 @@ export const PRINT_IN_PLACE_STORAGE_BOX_CONSTANTS = {
   },
 } as const;
 
+export const PRINT_IN_PLACE_COMPARTMENT_BOX_CONSTANTS = {
+  usableOffsets: {
+    width: 8,
+    depth: 9.1,
+  },
+  usableHeight: {
+    baseOffsetFromHalfHeight: 6,
+    lidOffsetFromHalfHeight: 8.1,
+  },
+  separatorCapacity: {
+    vertical: 6,
+    horizontal: 4,
+  },
+} as const;
+
+const PRINT_IN_PLACE_COMPARTMENT_BOX_OUTSIDE_LIMITS = {
+  boxWidth: { minimum: 92, maximum: 300 },
+  boxDepth: { minimum: 25, maximum: 300 },
+  boxHeight: { minimum: 35, maximum: 300 },
+} as const;
+
+const printInPlaceCompartmentBoxUsableLimits = {
+  width: {
+    minimum:
+      PRINT_IN_PLACE_COMPARTMENT_BOX_OUTSIDE_LIMITS.boxWidth.minimum -
+      PRINT_IN_PLACE_COMPARTMENT_BOX_CONSTANTS.usableOffsets.width,
+    maximum:
+      PRINT_IN_PLACE_COMPARTMENT_BOX_OUTSIDE_LIMITS.boxWidth.maximum -
+      PRINT_IN_PLACE_COMPARTMENT_BOX_CONSTANTS.usableOffsets.width,
+  },
+  depth: {
+    minimum:
+      PRINT_IN_PLACE_COMPARTMENT_BOX_OUTSIDE_LIMITS.boxDepth.minimum -
+      PRINT_IN_PLACE_COMPARTMENT_BOX_CONSTANTS.usableOffsets.depth,
+    maximum:
+      PRINT_IN_PLACE_COMPARTMENT_BOX_OUTSIDE_LIMITS.boxDepth.maximum -
+      PRINT_IN_PLACE_COMPARTMENT_BOX_CONSTANTS.usableOffsets.depth,
+  },
+  baseHeight: {
+    maximum:
+      PRINT_IN_PLACE_COMPARTMENT_BOX_OUTSIDE_LIMITS.boxHeight.maximum / 2 -
+      PRINT_IN_PLACE_COMPARTMENT_BOX_CONSTANTS.usableHeight
+        .baseOffsetFromHalfHeight,
+  },
+  lidHeight: {
+    maximum:
+      PRINT_IN_PLACE_COMPARTMENT_BOX_OUTSIDE_LIMITS.boxHeight.maximum / 2 -
+      PRINT_IN_PLACE_COMPARTMENT_BOX_CONSTANTS.usableHeight
+        .lidOffsetFromHalfHeight,
+  },
+} as const;
+
 const PRINT_IN_PLACE_STORAGE_BOX_OUTSIDE_LIMITS = {
   boxWidth: { minimum: 92, maximum: 350 },
   boxDepth: { minimum: 25, maximum: 350 },
@@ -171,5 +223,20 @@ export const ENGINEERING_LIMITS = {
   printInPlaceStorageBox: {
     outside: PRINT_IN_PLACE_STORAGE_BOX_OUTSIDE_LIMITS,
     usable: printInPlaceStorageBoxUsableLimits,
+  },
+
+  printInPlaceStorageBoxCompartments: {
+    outside: PRINT_IN_PLACE_COMPARTMENT_BOX_OUTSIDE_LIMITS,
+    usable: printInPlaceCompartmentBoxUsableLimits,
+    grid: {
+      minimumRows: 1,
+      maximumRows:
+        PRINT_IN_PLACE_COMPARTMENT_BOX_CONSTANTS.separatorCapacity.horizontal +
+        1,
+      minimumColumns: 1,
+      maximumColumns:
+        PRINT_IN_PLACE_COMPARTMENT_BOX_CONSTANTS.separatorCapacity.vertical +
+        1,
+    },
   },
 } as const;

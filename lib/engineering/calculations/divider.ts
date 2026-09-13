@@ -147,11 +147,9 @@ export function calculateEqualDividerConfiguration(
   trayUsableDepth: number,
   rows: number,
   columns: number,
+  maximumVerticalDividers = ENGINEERING_LIMITS.grid.maximumColumns - 1,
+  maximumHorizontalDividers = ENGINEERING_LIMITS.grid.maximumRows - 1,
 ): DividerConfiguration {
-  const maximumVerticalDividers = ENGINEERING_LIMITS.grid.maximumColumns - 1;
-
-  const maximumHorizontalDividers = ENGINEERING_LIMITS.grid.maximumRows - 1;
-
   const vertical = calculateEqualDividerPositions(trayUsableWidth, columns);
 
   const horizontal = calculateEqualDividerPositions(trayUsableDepth, rows);
@@ -233,6 +231,8 @@ export function calculateTrayUsableLengthFromSegments(segments: number[]) {
 export function calculateCustomDividerConfiguration(
   usableColumnWidths: number[],
   usableRowDepths: number[],
+  maximumVerticalDividers = ENGINEERING_LIMITS.grid.maximumColumns - 1,
+  maximumHorizontalDividers = ENGINEERING_LIMITS.grid.maximumRows - 1,
 ): DividerConfiguration {
   validateSegments(
     usableColumnWidths,
@@ -259,11 +259,11 @@ export function calculateCustomDividerConfiguration(
     horizontalPositions: horizontal.normalizedPositions,
     verticalToggles: createDividerToggles(
       vertical.normalizedPositions.length,
-      ENGINEERING_LIMITS.grid.maximumColumns - 1,
+      maximumVerticalDividers,
     ),
     horizontalToggles: createDividerToggles(
       horizontal.normalizedPositions.length,
-      ENGINEERING_LIMITS.grid.maximumRows - 1,
+      maximumHorizontalDividers,
     ),
   };
 }

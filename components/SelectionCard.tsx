@@ -7,6 +7,35 @@ type SelectionCardProps = {
 };
 
 function FunctionalIllustration({ type }: { type: string }) {
+  const pairedLayout =
+    type === "same-layout-pair" || type === "separate-layout-pair";
+
+  if (pairedLayout) {
+    const separate = type === "separate-layout-pair";
+
+    return (
+      <svg
+        viewBox="0 0 96 58"
+        className="h-10 w-20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <rect x="6" y="14" width="38" height="30" rx="4" />
+        <path d="M19 14v30M31 14v30M6 29h38" />
+        <rect x="52" y="14" width="38" height="30" rx="4" />
+        {separate ? (
+          <path d="M68 14v30M52 25h38M52 35h38" />
+        ) : (
+          <path d="M65 14v30M77 14v30M52 29h38" />
+        )}
+      </svg>
+    );
+  }
+
   const dimensionStrategy =
     type === "outside-size" || type === "usable-space";
 

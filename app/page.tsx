@@ -44,6 +44,13 @@ export default function Home() {
           >
             Configure the {PRODUCTS.printInPlaceStorageBox.name} →
           </Link>
+
+          <Link
+            href={PRODUCTS.printInPlaceStorageBoxCompartments.configuratorPath}
+            className="inline-flex rounded-lg border border-neutral-300 px-5 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
+          >
+            Configure the {PRODUCTS.printInPlaceStorageBoxCompartments.name} →
+          </Link>
         </div>
       </section>
     </main>

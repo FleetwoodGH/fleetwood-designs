@@ -56,6 +56,14 @@ export {
   type PrintInPlaceStorageBoxDimensions,
 } from "@/lib/engineering/calculations/printInPlaceStorageBox";
 
+export {
+  calculatePrintInPlaceCompartmentBox,
+  type CompartmentBoxHalfLayoutInput,
+  type CompartmentBoxHalfLayoutResult,
+  type PrintInPlaceCompartmentBoxCalculationInput,
+  type PrintInPlaceCompartmentBoxCalculationResult,
+} from "@/lib/engineering/calculations/printInPlaceCompartmentBox";
+
 /* -------------------------------------------------------------------------- */
 /* Outside-led calculation                                                    */
 /* -------------------------------------------------------------------------- */

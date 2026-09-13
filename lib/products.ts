@@ -17,4 +17,10 @@ export const PRODUCTS = {
     makerWorldUrl:
       "https://makerworld.com/en/models/1832500-parametric-storage-box#profileId-2533201",
   },
+  printInPlaceStorageBoxCompartments: {
+    name: "Print-in-Place Storage Box with Compartments",
+    configuratorPath: "/configure/print-in-place-storage-box-compartments",
+    makerWorldUrl:
+      "https://makerworld.com/en/models/1859912-parametric-storage-box-with-customizable-dividers#profileId-2098739",
+  },
 } as const;
