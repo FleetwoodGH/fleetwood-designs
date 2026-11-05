@@ -1,4 +1,9 @@
 export const PRODUCTS = {
+  stackableSmallPartsBox: {
+    name: "Stackable Small Parts Box",
+    configuratorPath: "/configure/stackable-small-parts-box",
+    makerWorldUrl: null,
+  },
   trayStorageSystem: {
     name: "Tray Storage System",
     configuratorPath: "/configure/tray-storage-system",

@@ -125,6 +125,7 @@ export default function MakerWorldParameterPreview({
         )}
       </header>
 
+
       <div className="overflow-hidden rounded-lg border border-neutral-300 bg-white">
         {splitAcrossColumns ? (
           <>

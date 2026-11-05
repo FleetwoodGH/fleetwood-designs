@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "validate:engineering": "node --import tsx scripts/validate-engineering.ts"
+    "validate:engineering": "node --import tsx scripts/validate-engineering.ts && npm run test:stackable",
+    "test:stackable": "node --import tsx --test lib/engineering/validation/stackableSmallPartsBox.test.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

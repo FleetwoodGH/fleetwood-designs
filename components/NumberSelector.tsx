@@ -5,6 +5,7 @@ type NumberSelectorProps = {
   value: number;
   min: number;
   max: number;
+  step?: number;
   onChange: (value: number) => void;
 };
 
@@ -13,14 +14,15 @@ export default function NumberSelector({
   value,
   min,
   max,
+  step = 1,
   onChange,
 }: NumberSelectorProps) {
   function decrease() {
-    onChange(Math.max(min, value - 1));
+    onChange(Math.max(min, value - step));
   }
 
   function increase() {
-    onChange(Math.min(max, value + 1));
+    onChange(Math.min(max, value + step));
   }
 
   return (
@@ -40,16 +42,16 @@ export default function NumberSelector({
 
         <input
           type="number"
-          inputMode="numeric"
+          inputMode={step < 1 ? "decimal" : "numeric"}
           min={min}
           max={max}
-          step={1}
+          step={step}
           value={value}
           aria-label={label}
           onChange={(event) => {
             const nextValue = Number(event.target.value);
             if (
-              Number.isInteger(nextValue) &&
+              Number.isInteger((nextValue - min) / step) &&
               nextValue >= min &&
               nextValue <= max
             ) {
