@@ -4,6 +4,7 @@ import Link from "next/link";
 import printInPlaceStorageBoxImage from "@/public/images/products/print-in-place-storage-box.png";
 import printInPlaceStorageBoxCompartmentsImage from "@/public/images/products/print-in-place-storage-box-compartments.png";
 import storageBoxLidBaseImage from "@/public/images/products/storage-box-lid-base.png";
+import stackableSmallPartsBoxImage from "@/public/images/products/stackable-small-parts-box.png";
 import trayStorageSystemImage from "@/public/images/products/tray-storage-system.png";
 import { PRODUCTS } from "@/lib/products";
 import { SITE } from "@/lib/site";
@@ -91,6 +92,7 @@ const productFamilies = [
     description: "One outer shell and one sliding drawer with configurable stacking geometry.",
     products: [{
       product: PRODUCTS.stackableSmallPartsBox,
+      image: stackableSmallPartsBoxImage,
       description: "Stackable Small Parts Box (working name). Set standard grid counts or a custom total size.",
       bestFor: "Sizing a single sliding drawer around the space your parts need.",
       features: ["Standard grid", "Custom size", "Sliding drawer"],
