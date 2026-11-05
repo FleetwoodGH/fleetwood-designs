@@ -96,8 +96,7 @@ export default function StackableSmallPartsBoxConfigurator() {
           <p className="mt-3 text-xs leading-5 text-neutral-500">The drawer bottom varies locally by 0.9 mm. Guaranteed fit uses the minimum height near the edges. Stacking studs add 1 mm above the nominal outside height; the 252 mm limit excludes studs.</p>
         </ParameterInput>
         </div>
-        <MakerWorldParameterPreview parameters={parameters} inputOrder={STACKABLE_PARAMETER_ORDER} makerWorldUrl={PRODUCTS.stackableSmallPartsBox.makerWorldUrl} splitAcrossColumns={false} />
-        <p className="text-xs text-neutral-500">Working product name. MakerWorld model link will be added when available.</p>
+        <MakerWorldParameterPreview parameters={parameters} inputOrder={STACKABLE_PARAMETER_ORDER} makerWorldUrl={PRODUCTS.stackableSmallPartsBox.makerWorldUrl} makerWorldLinkLabel="Open Model on MakerWorld" splitAcrossColumns={false} />
       </>}
     </div>
   );

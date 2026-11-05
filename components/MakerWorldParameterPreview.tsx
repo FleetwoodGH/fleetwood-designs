@@ -8,6 +8,7 @@ type MakerWorldParameterPreviewProps = {
   parameters: MakerWorldParameters;
   inputOrder?: readonly string[];
   makerWorldUrl?: string | null;
+  makerWorldLinkLabel?: string;
   splitAcrossColumns?: boolean;
 };
 
@@ -88,6 +89,7 @@ export default function MakerWorldParameterPreview({
   parameters,
   inputOrder = MAKERWORLD_INPUT_ORDER,
   makerWorldUrl = PRODUCTS.trayStorageSystem.makerWorldUrl,
+  makerWorldLinkLabel = "Open model in MakerWorld",
   splitAcrossColumns = true,
 }: MakerWorldParameterPreviewProps) {
   const orderedParameters = getOrderedParameters(parameters, inputOrder);
@@ -114,7 +116,7 @@ export default function MakerWorldParameterPreview({
               rel="noreferrer"
               className="inline-flex rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 transition hover:border-neutral-400 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
             >
-              Open model in MakerWorld
+              {makerWorldLinkLabel}
             </a>
 
             <p className="mt-2 max-w-2xl text-xs leading-4 text-neutral-500">

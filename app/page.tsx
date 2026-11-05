@@ -116,14 +116,18 @@ function ProductCard({
 }: ProductCardProps) {
   return (
     <article className="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white">
-      <div className="border-b border-neutral-200 bg-white md:h-[255px] lg:h-72">
+      <Link
+        href={product.configuratorPath}
+        aria-label={`Configure ${product.name}`}
+        className="block border-b border-neutral-200 bg-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-900 md:h-[255px] lg:h-72"
+      >
         {image ? <Image
           src={image}
           alt={`${product.name} storage design`}
           sizes="(max-width: 767px) calc(100vw - 48px), (max-width: 1279px) calc(50vw - 56px), 568px"
           className="aspect-4/3 h-auto w-full object-contain md:h-full md:aspect-auto"
         /> : <div className="flex min-h-48 h-full items-center justify-center px-8 text-sm text-neutral-500">Product image forthcoming</div>}
-      </div>
+      </Link>
 
       <div className="flex flex-1 flex-col p-6 sm:p-7 lg:p-5">
         <h3 className="text-xl font-semibold leading-snug tracking-tight text-[#1A1A1A] sm:text-2xl">
