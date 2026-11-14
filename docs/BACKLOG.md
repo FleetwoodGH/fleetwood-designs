@@ -11,11 +11,6 @@
   position followed by toggle) and the Stackable Small Parts Box (6 parameters).
 - Add rejection (invalid input) assertions for the Print-in-Place Storage Box with Compartments.
 
-## Website
-
-- Remove "(working name)" from the Stackable Small Parts Box description on the homepage; the
-  name is final.
-
 ## Storage Designer UX
 
 - Consider automatically advancing after tray-number changes so the Continue
