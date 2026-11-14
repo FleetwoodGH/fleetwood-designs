@@ -93,7 +93,8 @@ const productFamilies = [
     products: [{
       product: PRODUCTS.stackableSmallPartsBox,
       image: stackableSmallPartsBoxImage,
-      description: "Stackable Small Parts Box (working name). Set standard grid counts or a custom total size.",
+      description:
+        "A stackable box with one outer shell and a sliding drawer, sized on a grid. Use the standard grid for boxes that stack together, or set a custom total size around the parts you need to store.",
       bestFor: "Sizing a single sliding drawer around the space your parts need.",
       features: ["Standard grid", "Custom size", "Sliding drawer"],
     }],
