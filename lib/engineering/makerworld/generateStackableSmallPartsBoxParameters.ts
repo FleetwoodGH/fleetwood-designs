@@ -1,4 +1,4 @@
-import type { StackableBoxResult } from "../calculations/stackableSmallPartsBox";
+import { STACKABLE_MAXIMUM_OUTSIDE_SIZE, type StackableBoxResult } from "../calculations/stackableSmallPartsBox";
 import type { MakerWorldParameters } from "./types";
 
 export const STACKABLE_PARAMETER_ORDER = [
@@ -9,8 +9,8 @@ export function generateStackableSmallPartsBoxParameters(result: StackableBoxRes
   const roundedUnits = (["depth", "width", "height"] as const).map(axis => {
     let value = Number(result.units[axis].toFixed(2));
     if (value < result.units[axis]) value = Number((value + 0.01).toFixed(2));
-    if (value * result.counts[axis] > 252) {
-      throw new Error(`Two-decimal MakerWorld unit ${axis} would exceed 252 mm overall. Reduce the requested ${axis} or choose another grid count.`);
+    if (value * result.counts[axis] > STACKABLE_MAXIMUM_OUTSIDE_SIZE) {
+      throw new Error(`Two-decimal MakerWorld unit ${axis} would exceed ${STACKABLE_MAXIMUM_OUTSIDE_SIZE} mm overall. Reduce the requested ${axis} or choose another grid count.`);
     }
     return value;
   });

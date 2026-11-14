@@ -8,7 +8,8 @@ import { scrollToWorkflowSection } from "@/components/configurators/scrollToWork
 import ParameterInput from "@/components/ParameterInput";
 import MakerWorldParameterPreview from "@/components/MakerWorldParameterPreview";
 import WorkflowProgress from "@/components/WorkflowProgress";
-import { calculateStackableSmallPartsBox, STACKABLE_AXES, STACKABLE_CLEARANCES, STACKABLE_MINIMUM_UNITS, type StackableDimensions } from "@/lib/engineering/calculations/stackableSmallPartsBox";
+import { calculateStackableSmallPartsBox, STACKABLE_AXES, STACKABLE_CLEARANCES, STACKABLE_MAXIMUM_OUTSIDE_SIZE, STACKABLE_MINIMUM_UNITS, stackableGridStep, type StackableDimensions } from "@/lib/engineering/calculations/stackableSmallPartsBox";
+import { STACKABLE_SMALL_PARTS_BOX_CONSTANTS } from "@/lib/engineering/engineeringConstants";
 import { generateStackableSmallPartsBoxParameters, STACKABLE_PARAMETER_ORDER } from "@/lib/engineering/makerworld/generateStackableSmallPartsBoxParameters";
 import { PRODUCTS } from "@/lib/products";
 
@@ -32,7 +33,7 @@ export default function StackableSmallPartsBoxConfigurator() {
   const dimensions = Object.fromEntries(STACKABLE_AXES.map(axis => [axis, values[axis].trim() === "" ? NaN : Number(values[axis].replace(",", "."))])) as StackableDimensions;
   const dimensionsComplete = STACKABLE_AXES.every(axis => {
     const offset = strategy === "usable" ? STACKABLE_CLEARANCES[axis] : 0;
-    return Number.isFinite(dimensions[axis]) && dimensions[axis] >= STACKABLE_MINIMUM_UNITS[axis] - offset && dimensions[axis] <= 252 - offset;
+    return Number.isFinite(dimensions[axis]) && dimensions[axis] >= STACKABLE_MINIMUM_UNITS[axis] - offset && dimensions[axis] <= STACKABLE_MAXIMUM_OUTSIDE_SIZE - offset;
   });
   let result = null;
   let parameters = null;
@@ -68,7 +69,7 @@ export default function StackableSmallPartsBoxConfigurator() {
             {STACKABLE_AXES.map(axis => {
               const offset = strategy === "usable" ? STACKABLE_CLEARANCES[axis] : 0;
               const minimum = STACKABLE_MINIMUM_UNITS[axis] - offset;
-              const maximum = 252 - offset;
+              const maximum = STACKABLE_MAXIMUM_OUTSIDE_SIZE - offset;
               const valid = Number.isFinite(dimensions[axis]) && dimensions[axis] >= minimum && dimensions[axis] <= maximum;
               return <DimensionField key={axis} id={`stackable-${axis}`} label={`${strategy === "usable" ? "Required usable " : "Outside "}${axis}`} value={values[axis]} minimum={minimum} maximum={maximum} isValid={valid} hasError={values[axis] !== "" && !valid} inputMode="decimal" requirement={`Enter ${minimum}–${maximum} mm for the entire box or drawer.`} onChange={value => setValues(current => ({ ...current, [axis]: value }))} />;
             })}
@@ -82,11 +83,12 @@ export default function StackableSmallPartsBoxConfigurator() {
       <ParameterInput title={mode === "custom" ? "3. Divide the entire box into grid units" : "Choose grid counts"} description={mode === "custom" ? "Choose how many units span the total width, depth and height you entered. More units make each unit smaller; the complete box stays the same size. Width and depth use 0.5 steps; height uses whole units." : "Choose how many fixed 42 × 42 × 14 mm units span your box. More units make the complete box larger. Width and depth use 0.5 steps; height uses whole units."}>
         <div className="grid gap-5 sm:grid-cols-3">
           {STACKABLE_AXES.map(axis => {
-            const step = axis === "height" ? 1 : 0.5;
+            const step = stackableGridStep(axis);
+            const { minimumCount, maximumCount } = STACKABLE_SMALL_PARTS_BOX_CONSTANTS.grid;
             const total = dimensions[axis] + (strategy === "usable" ? STACKABLE_CLEARANCES[axis] : 0);
             const maximum = mode === "custom" && Number.isFinite(total)
-              ? Math.max(1, Math.min(6, Math.floor(total / STACKABLE_MINIMUM_UNITS[axis] / step) * step)) : 6;
-            return <NumberSelector key={axis} label={`${label(axis)} units`} value={counts[axis]} min={1} max={maximum} step={step} onChange={value => setCounts(current => ({ ...current, [axis]: value }))} />;
+              ? Math.max(minimumCount, Math.min(maximumCount, Math.floor(total / STACKABLE_MINIMUM_UNITS[axis] / step) * step)) : maximumCount;
+            return <NumberSelector key={axis} label={`${label(axis)} units`} value={counts[axis]} min={minimumCount} max={maximum} step={step} onChange={value => setCounts(current => ({ ...current, [axis]: value }))} />;
           })}
         </div>
         <button type="button" disabled={!result} onClick={() => goTo("results")} className="mt-4 rounded-lg bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-35">Continue</button>
@@ -106,7 +108,7 @@ export default function StackableSmallPartsBoxConfigurator() {
               ["Individual grid unit (W × D × H)", STACKABLE_AXES.map(axis => formatDimension(result.units[axis])).join(" × ")],
             ].map(([name, value]) => <div key={name} className="flex flex-wrap justify-between gap-2 border-b border-neutral-100 py-3 last:border-0"><dt className="text-sm text-neutral-600">{name}{name === "Drawer Opening" && <span className="mt-1 block text-xs leading-5 text-neutral-500">Maximum accessible drawer opening with the built-in drawer stop.</span>}</dt><dd className="break-all text-sm font-medium tabular-nums">{value} mm</dd></div>)}
           </dl>
-          <p className="mt-3 text-xs leading-5 text-neutral-500">The drawer bottom varies locally by 0.9 mm. Guaranteed fit uses the minimum height near the edges. Stacking studs add 1 mm above the nominal outside height; the 252 mm limit excludes studs.</p>
+          <p className="mt-3 text-xs leading-5 text-neutral-500">The drawer bottom varies locally by 0.9 mm. Guaranteed fit uses the minimum height near the edges. Stacking studs add {STACKABLE_SMALL_PARTS_BOX_CONSTANTS.studHeight} mm above the nominal outside height; the {STACKABLE_MAXIMUM_OUTSIDE_SIZE} mm limit excludes studs.</p>
         </ParameterInput>
         </div>
         <MakerWorldParameterPreview parameters={parameters} inputOrder={STACKABLE_PARAMETER_ORDER} makerWorldUrl={PRODUCTS.stackableSmallPartsBox.makerWorldUrl} makerWorldLinkLabel="Open Model on MakerWorld" splitAcrossColumns={false} />

@@ -16,7 +16,10 @@ test("standard defaults, conservative height, deeper region and studs", () => {
   close(result.maximumUsableHeight, 8.9);
   close(result.overallHeightIncludingStuds, 15);
   const output = parameters(result).groups[0].parameters;
-  assert.deepEqual(output.map(p => p.name), [...STACKABLE_PARAMETER_ORDER]);
+  // Exact order of the published MakerWorld model; independent of STACKABLE_PARAMETER_ORDER on purpose.
+  const exactOrder = ["unitDepth", "unitWidth", "unitHeight", "unitNumberDepth", "unitNumberWidth", "unitNumberHeight"];
+  assert.deepEqual([...STACKABLE_PARAMETER_ORDER], exactOrder);
+  assert.deepEqual(output.map(p => p.name), exactOrder);
   assert.deepEqual(output.map(p => p.displayValue), ["42", "42", "14", "1", "1", "1"]);
   assert.deepEqual(output.map(p => p.unit), ["mm", "mm", "mm", undefined, undefined, undefined]);
 });

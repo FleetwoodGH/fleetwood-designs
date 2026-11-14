@@ -64,6 +64,27 @@ export const PRINT_IN_PLACE_COMPARTMENT_BOX_CONSTANTS = {
   },
 } as const;
 
+export const STACKABLE_SMALL_PARTS_BOX_CONSTANTS = {
+  standardUnit: { width: 42, depth: 42, height: 14 },
+  minimumUnit: { width: 30, depth: 30, height: 14 },
+  // Outside size minus clearance gives the conservative usable drawer space.
+  // The height clearance uses the minimum drawer height near the edges.
+  clearance: { width: 7.08, depth: 4.46, height: 6 },
+  // Nominal outside size per axis, excluding stacking studs.
+  maximumOutsideSize: 252,
+  // Total depth minus this offset is the drawer opening with the drawer stop.
+  drawerOpeningDepthOffset: 18.64,
+  // Outside height minus this offset is the usable height in the deeper central region.
+  deeperRegionHeightOffset: 5.1,
+  studHeight: 1,
+  grid: {
+    minimumCount: 1,
+    maximumCount: 6,
+    widthDepthStep: 0.5,
+    heightStep: 1,
+  },
+} as const;
+
 const PRINT_IN_PLACE_COMPARTMENT_BOX_OUTSIDE_LIMITS = {
   boxWidth: { minimum: 92, maximum: 300 },
   boxDepth: { minimum: 25, maximum: 300 },
