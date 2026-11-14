@@ -183,6 +183,26 @@ export function runEngineeringValidation() {
     maximumMakerWorld.groups.flatMap((group) => group.parameters).length === 25,
     "MakerWorld output must contain all 25 parameters.",
   );
+  // Exact order of the published MakerWorld model (confirmed against the
+  // Parametric Model Maker, November 2026): each divider position is directly
+  // followed by its toggle.
+  const exactTrayParameterOrder = [
+    "boxWidth",
+    "boxDepth",
+    "lidHeight",
+    "trayHeight",
+    "trayNumber",
+    ...[1, 2, 3, 4, 5].flatMap((index) => [`dividerV${index}`, `toggleV${index}`]),
+    ...[1, 2, 3, 4, 5].flatMap((index) => [`dividerH${index}`, `toggleH${index}`]),
+  ];
+  assert(
+    JSON.stringify(
+      maximumMakerWorld.groups
+        .flatMap((group) => group.parameters)
+        .map((parameter) => parameter.name),
+    ) === JSON.stringify(exactTrayParameterOrder),
+    "Tray Storage System MakerWorld parameter order changed unexpectedly.",
+  );
   const maximumParameterByName = new Map(
     maximumMakerWorld.groups
       .flatMap((group) => group.parameters)
